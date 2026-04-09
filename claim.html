@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wing Woman Weekday — Pick Your Night</title>
+<title>Wing Woman Weekday — Your Mission</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -13,72 +13,142 @@
     --accent:#B5634A; --green:#5A7A5A; --gold:#C9A84C; --white:#FFFFFF;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--deep);min-height:100vh;display:flex;flex-direction:column;}
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--deep);min-height:100vh;}
 
-  .top-bar{background:var(--deep);padding:1.1rem 1.5rem;display:flex;align-items:center;gap:0.75rem;}
+  .top-bar{background:var(--deep);padding:1rem 1.5rem;display:flex;align-items:center;gap:0.75rem;}
   .top-logo{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--cream);}
   .top-logo span{color:var(--blush);font-style:italic;}
 
-  .hero{background:var(--deep);padding:2.5rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden;}
-  .hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:30px;background:var(--cream);border-radius:30px 30px 0 0;}
-  .hero-eyebrow{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(232,196,184,0.7);margin-bottom:0.75rem;font-weight:500;}
-  .hero-name{font-family:'Playfair Display',serif;font-size:2rem;color:var(--cream);line-height:1.2;margin-bottom:0.4rem;}
-  .hero-name em{color:var(--blush);}
-  .hero-sub{font-size:0.88rem;color:rgba(250,247,242,0.55);max-width:360px;margin:0 auto;line-height:1.6;}
+  .hero{background:var(--deep);padding:2.25rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(232,196,184,0.08) 0%,transparent 70%);pointer-events:none;}
+  .hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:28px;background:var(--cream);border-radius:28px 28px 0 0;}
+  .hero-eyebrow{font-size:0.63rem;text-transform:uppercase;letter-spacing:0.2em;color:rgba(232,196,184,0.6);margin-bottom:0.6rem;font-weight:500;}
+  .hero-title{font-family:'Playfair Display',serif;font-size:1.9rem;color:var(--cream);line-height:1.2;margin-bottom:0.4rem;}
+  .hero-title em{color:var(--blush);}
+  .hero-sub{font-size:0.85rem;color:rgba(250,247,242,0.52);max-width:340px;margin:0 auto;line-height:1.65;}
 
-  .content{flex:1;padding:1.5rem;max-width:500px;margin:0 auto;width:100%;}
+  .content{padding:1.5rem;max-width:520px;margin:0 auto;}
+  .section-label{font-size:0.64rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);margin-bottom:0.8rem;font-weight:500;}
 
-  .status-card{background:var(--white);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;border:1px solid rgba(196,133,106,0.15);text-align:center;}
+  /* Steps indicator */
+  .steps-row{display:flex;align-items:center;gap:0;margin-bottom:1.75rem;}
+  .step-pip{width:24px;height:24px;border-radius:50%;border:1.5px solid rgba(196,133,106,0.3);display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:600;color:var(--muted);flex-shrink:0;transition:all 0.2s;}
+  .step-pip.active{background:var(--deep);border-color:var(--deep);color:var(--cream);}
+  .step-pip.done{background:var(--accent);border-color:var(--accent);color:white;}
+  .step-line-s{flex:1;height:1px;background:rgba(196,133,106,0.2);}
+  .step-text{font-size:0.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:0.3rem;text-align:center;}
 
-  /* Already claimed state */
-  .claimed-view{text-align:center;padding:1rem 0;}
-  .claimed-icon{font-size:2.5rem;margin-bottom:0.75rem;}
-  .claimed-date{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:0.25rem;}
-  .claimed-sub{font-size:0.85rem;color:var(--muted);line-height:1.6;}
-
-  .section-label{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);margin-bottom:0.85rem;font-weight:500;}
+  .view{display:none;}
+  .view.active{display:block;}
 
   /* Date options */
-  .date-options{display:flex;flex-direction:column;gap:0.55rem;margin-bottom:1.5rem;}
-  .date-option{background:var(--white);border-radius:12px;padding:1rem 1.2rem;border:2px solid rgba(196,133,106,0.15);display:flex;align-items:center;gap:1rem;cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
-  .date-option:hover,.date-option:active{border-color:var(--dusty-rose);transform:scale(1.01);}
+  .date-list{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.5rem;}
+  .date-option{background:var(--white);border-radius:12px;padding:0.9rem 1.1rem;border:2px solid rgba(196,133,106,0.15);display:flex;align-items:center;gap:0.9rem;cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
+  .date-option:hover{border-color:var(--blush);}
   .date-option.selected{border-color:var(--accent);background:#FDF5F2;}
-  .date-option.taken{opacity:0.38;cursor:not-allowed;pointer-events:none;background:#F8F5F2;}
-  .date-box{background:var(--deep);color:var(--cream);border-radius:8px;padding:0.4rem 0.65rem;text-align:center;min-width:50px;flex-shrink:0;}
-  .db-day{font-size:0.55rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.5;}
-  .db-num{font-family:'Playfair Display',serif;font-size:1.15rem;line-height:1;}
-  .db-mon{font-size:0.54rem;opacity:0.5;}
-  .date-option-info{flex:1;}
-  .do-weekday{font-weight:500;font-size:0.9rem;}
-  .do-sub{font-size:0.74rem;color:var(--muted);margin-top:2px;}
-  .do-check{width:20px;height:20px;border-radius:50%;border:2px solid rgba(196,133,106,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
-  .date-option.selected .do-check{background:var(--accent);border-color:var(--accent);color:white;font-size:10px;}
+  .date-option.taken{opacity:0.35;cursor:not-allowed;pointer-events:none;}
+  .date-box{background:var(--deep);color:var(--cream);border-radius:8px;padding:0.38rem 0.6rem;text-align:center;min-width:48px;flex-shrink:0;}
+  .db-day{font-size:0.54rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.5;}
+  .db-num{font-family:'Playfair Display',serif;font-size:1.1rem;line-height:1;}
+  .db-mon{font-size:0.53rem;opacity:0.5;}
+  .do-info{flex:1;}
+  .do-weekday{font-weight:500;font-size:0.88rem;}
+  .do-sub{font-size:0.72rem;color:var(--muted);margin-top:2px;}
+  .do-check{width:20px;height:20px;border-radius:50%;border:2px solid rgba(196,133,106,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;font-size:10px;}
+  .date-option.selected .do-check{background:var(--accent);border-color:var(--accent);color:white;}
 
-  .confirm-section{position:sticky;bottom:0;background:var(--cream);padding:1rem 0 1.5rem;border-top:1px solid rgba(196,133,106,0.15);}
-  .btn{padding:0.65rem 1.5rem;border-radius:100px;border:none;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;justify-content:center;gap:0.45rem;width:100%;}
+  /* Neighborhood cards */
+  .hood-grid{display:flex;flex-direction:column;gap:0.65rem;margin-bottom:1.5rem;}
+  .hood-card{background:var(--white);border-radius:14px;border:1.5px solid rgba(196,133,106,0.15);overflow:hidden;cursor:pointer;transition:all 0.2s;}
+  .hood-card.selected{border-color:var(--accent);}
+  .hood-card:hover{border-color:var(--blush);}
+  .hood-card-header{padding:1rem 1.1rem;display:flex;align-items:center;gap:0.75rem;}
+  .hood-select-circle{width:20px;height:20px;border-radius:50%;border:2px solid rgba(196,133,106,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all 0.2s;}
+  .hood-card.selected .hood-select-circle{background:var(--accent);border-color:var(--accent);color:white;}
+  .hood-card-main{flex:1;}
+  .hood-name{font-weight:500;font-size:0.9rem;}
+  .hood-teaser{font-size:0.74rem;color:var(--muted);margin-top:2px;line-height:1.4;}
+  .hood-expand-btn{font-size:0.68rem;color:var(--accent);padding:0 1.1rem 0.65rem;font-weight:500;display:flex;align-items:center;gap:0.3rem;}
+  .hood-intel{display:none;padding:0 1.1rem 1.1rem;}
+  .hood-intel.open{display:block;}
+  .hood-intel-inner{background:var(--soft);border-radius:10px;padding:0.85rem 1rem;}
+  .intel-row{margin-bottom:0.65rem;}
+  .intel-row:last-child{margin-bottom:0;}
+  .intel-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:500;margin-bottom:0.25rem;}
+  .intel-value{font-size:0.78rem;color:var(--deep);line-height:1.5;}
+  .intel-tag{display:inline-block;background:var(--white);border:1px solid rgba(196,133,106,0.2);border-radius:100px;padding:2px 8px;font-size:0.68rem;color:var(--muted);margin:2px 2px 0 0;}
+  .intel-highlight{font-size:0.78rem;color:var(--accent);font-weight:500;font-style:italic;margin-top:0.5rem;line-height:1.4;}
+
+  /* Venue picks */
+  .venue-list{display:flex;flex-direction:column;gap:0.65rem;margin-bottom:1.25rem;}
+  .venue-card{background:var(--white);border-radius:14px;padding:1.1rem;border:2px solid rgba(196,133,106,0.15);cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+  .venue-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--blush);}
+  .venue-card.gold::before{background:var(--gold);}
+  .venue-card.rose::before{background:var(--dusty-rose);}
+  .venue-card.selected{border-color:var(--accent);}
+  .venue-card:hover{border-color:var(--blush);}
+  .venue-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.4rem;}
+  .venue-card-name{font-family:'Playfair Display',serif;font-size:1rem;line-height:1.3;}
+  .venue-card-check{width:22px;height:22px;border-radius:50%;border:2px solid rgba(196,133,106,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all 0.2s;}
+  .venue-card.selected .venue-card-check{background:var(--accent);border-color:var(--accent);color:white;}
+  .venue-hood-tag{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;font-weight:500;}
+  .venue-why{font-size:0.78rem;color:var(--muted);line-height:1.5;margin-bottom:0.6rem;}
+  .venue-tags{display:flex;flex-wrap:wrap;gap:0.22rem;}
+  .vtag{padding:2px 7px;border-radius:100px;font-size:0.64rem;font-weight:500;}
+  .vtag-vibe{background:#F0E8E2;color:var(--dusty-rose);}
+  .vtag-crowd{background:#EAF0EA;color:var(--green);}
+  .vtag-time{background:#F5F0E8;color:var(--gold);}
+
+  /* Note input */
+  .note-box{background:var(--white);border-radius:14px;padding:1.1rem;border:1px solid rgba(196,133,106,0.15);margin-bottom:1.25rem;}
+  .note-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:500;margin-bottom:0.5rem;display:block;}
+  .note-input{width:100%;padding:0.6rem 0.8rem;border:1.5px solid rgba(196,133,106,0.25);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.86rem;background:var(--cream);color:var(--deep);outline:none;resize:none;min-height:80px;transition:border-color 0.2s;line-height:1.5;}
+  .note-input:focus{border-color:var(--dusty-rose);}
+  input.note-input{min-height:0;}
+  .note-nudge{font-size:0.72rem;color:var(--muted);margin-top:0.4rem;font-style:italic;line-height:1.4;}
+
+  /* Sticky confirm */
+  .confirm-bar{position:sticky;bottom:0;background:var(--cream);padding:0.85rem 0 1.25rem;border-top:1px solid rgba(196,133,106,0.12);}
+  .btn{width:100%;padding:0.7rem 1.5rem;border-radius:100px;border:none;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.45rem;}
   .btn-primary{background:var(--deep);color:var(--cream);}
   .btn-primary:hover{background:var(--accent);}
-  .btn-primary:disabled{opacity:0.4;cursor:not-allowed;}
+  .btn-primary:disabled{opacity:0.38;cursor:not-allowed;}
+  .btn-ghost-s{background:transparent;color:var(--muted);border:none;font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;padding:0.5rem 0;text-align:center;width:100%;margin-top:0.5rem;}
+  .btn-ghost-s:hover{color:var(--deep);}
 
-  .spinner{width:16px;height:16px;border:2px solid rgba(250,247,242,0.3);border-top-color:var(--cream);border-radius:50%;animation:spin 0.7s linear infinite;}
+  /* Loading */
+  .spinner{width:18px;height:18px;border:2px solid rgba(250,247,242,0.3);border-top-color:var(--cream);border-radius:50%;animation:spin 0.7s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
-
-  /* Success screen */
-  .success-screen{display:none;text-align:center;padding:2rem 1rem;}
-  .success-icon{width:70px;height:70px;background:#EFF7EF;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:1.8rem;}
-  .success-title{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:0.5rem;}
-  .success-title em{color:var(--dusty-rose);}
-  .success-date{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--accent);margin-bottom:0.75rem;}
-  .success-note{font-size:0.85rem;color:var(--muted);line-height:1.6;max-width:300px;margin:0 auto;}
-
-  .loading-screen{text-align:center;padding:3rem 1rem;}
-  .loading-screen p{font-family:'Playfair Display',serif;font-size:1rem;font-style:italic;color:var(--muted);margin-top:1rem;}
   .big-spinner{width:36px;height:36px;border:3px solid rgba(196,133,106,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto;}
+  .loading-view{text-align:center;padding:2.5rem 1rem;}
+  .loading-view p{font-family:'Playfair Display',serif;font-size:0.95rem;font-style:italic;color:var(--muted);margin-top:1rem;}
 
-  .error-screen{text-align:center;padding:3rem 1rem;color:var(--muted);}
-  .error-screen p{font-family:'Playfair Display',serif;font-size:1rem;font-style:italic;}
+  /* Success */
+  .success-view{text-align:center;padding:2rem 0.5rem 3rem;}
+  .success-icon{width:68px;height:68px;background:#EFF7EF;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.1rem;font-size:1.7rem;}
+  .success-title{font-family:'Playfair Display',serif;font-size:1.55rem;margin-bottom:0.3rem;}
+  .success-title em{color:var(--dusty-rose);}
+  .success-date{font-size:0.9rem;color:var(--accent);font-weight:500;margin-bottom:0.3rem;}
+  .success-venue{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:0.75rem;}
+  .success-note{font-size:0.82rem;color:var(--muted);line-height:1.65;max-width:300px;margin:0 auto;}
 
-  .taken-label{font-size:0.68rem;color:var(--muted);background:rgba(196,133,106,0.1);padding:2px 8px;border-radius:100px;font-weight:500;}
+  .info-pill{display:inline-flex;align-items:center;gap:0.35rem;background:rgba(196,133,106,0.1);border-radius:100px;padding:3px 10px;font-size:0.7rem;color:var(--accent);font-weight:500;margin-bottom:1rem;}
+
+  .error-view{text-align:center;padding:3rem 1rem;color:var(--muted);}
+  .error-view p{font-family:'Playfair Display',serif;font-size:1rem;font-style:italic;}
+
+  .taken-pill{font-size:0.65rem;background:rgba(196,133,106,0.1);color:var(--muted);padding:2px 8px;border-radius:100px;font-weight:500;}
+
+  .ai-badge{display:inline-flex;align-items:center;gap:0.3rem;background:var(--deep);color:var(--blush);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.12em;padding:3px 9px;border-radius:100px;font-weight:500;margin-bottom:1rem;}
+  .ai-badge::before{content:'';width:5px;height:5px;background:var(--blush);border-radius:50%;animation:pulse 2s infinite;}
+  .ai-output{background:var(--deep);border-radius:14px;padding:1.4rem;color:var(--cream);}
+  .ai-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.18em;color:var(--blush);margin-bottom:0.85rem;font-weight:500;display:flex;align-items:center;gap:0.45rem;}
+  .ai-label::before{content:'';display:inline-block;width:5px;height:5px;background:var(--blush);border-radius:50%;animation:pulse 2s infinite;}
+  .loading-dots span{display:inline-block;animation:ldots 1.4s infinite;font-size:1rem;color:var(--blush);}
+  .loading-dots span:nth-child(2){animation-delay:0.2s;}
+  .loading-dots span:nth-child(3){animation-delay:0.4s;}
+  @keyframes ldots{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
 </style>
 </head>
 <body>
@@ -88,214 +158,538 @@
 </div>
 
 <div class="hero">
-  <div class="hero-eyebrow">You've been invited</div>
-  <div class="hero-name">Pick your <em>night</em></div>
-  <div class="hero-sub" id="heroSub">Loading your invite...</div>
+  <div class="hero-eyebrow">You've been recruited</div>
+  <div class="hero-title">Your bestie is <em>the main character.</em></div>
+  <div class="hero-sub" id="heroSub">Loading your mission briefing...</div>
 </div>
 
 <div class="content">
+
   <!-- Loading -->
-  <div class="loading-screen" id="loadingScreen">
-    <div class="big-spinner"></div>
-    <p>Loading your dates...</p>
-  </div>
-
-  <!-- Error -->
-  <div class="error-screen" id="errorScreen" style="display:none;">
-    <p>This link doesn't look right, or it's expired.</p>
-  </div>
-
-  <!-- Already claimed -->
-  <div class="status-card" id="alreadyClaimedCard" style="display:none;">
-    <div class="claimed-view">
-      <div class="claimed-icon">🗓️</div>
-      <div class="claimed-date" id="alreadyClaimedDate"></div>
-      <div class="claimed-sub">You're already locked in for this night. See you then!</div>
+  <div class="view active" id="loadingView">
+    <div class="loading-view">
+      <div class="big-spinner"></div>
+      <p>Pulling up your mission...</p>
     </div>
   </div>
 
-  <!-- Pick a date -->
-  <div id="pickView" style="display:none;">
-    <p class="section-label">Available nights</p>
-    <div class="date-options" id="dateOptions"></div>
-    <div class="confirm-section">
-      <button class="btn btn-primary" id="confirmBtn" onclick="confirmClaim()" disabled>Claim this night →</button>
+  <!-- Error -->
+  <div class="view" id="errorView">
+    <div class="error-view"><p>This link doesn't look right, or it's expired.</p></div>
+  </div>
+
+  <!-- Already claimed -->
+  <div class="view" id="alreadyView">
+    <div style="background:var(--white);border-radius:14px;padding:1.5rem;border:1px solid rgba(196,133,106,0.15);text-align:center;margin-top:0.5rem;">
+      <div style="font-size:2rem;margin-bottom:0.75rem;">🗓️</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:0.3rem;" id="alreadyDate"></div>
+      <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">You're already locked in. She's counting on you.<br>Don't let the main character down.</div>
+    </div>
+  </div>
+
+  <!-- STEP 1: Pick a date -->
+  <div class="view" id="step1View">
+    <div class="info-pill">Step 1 of 3</div>
+    <p class="section-label">Pick your night</p>
+    <div class="date-list" id="dateList"></div>
+    <div class="confirm-bar">
+      <button class="btn btn-primary" id="btnDateNext" onclick="goToStep2()" disabled>Choose your night →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Pick a neighborhood -->
+  <div class="view" id="step2View">
+    <div class="info-pill">Step 2 of 3</div>
+    <p class="section-label">Where should the night happen?</p>
+    <div class="hood-grid" id="hoodGrid"></div>
+    <div class="confirm-bar">
+      <button class="btn btn-primary" id="btnHoodNext" onclick="goToStep3()" disabled>Get venue picks →</button>
+      <button class="btn-ghost-s" onclick="goBack(1)">← Change date</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: AI venue picks + note -->
+  <div class="view" id="step3View">
+    <div class="info-pill">Step 3 of 3</div>
+    <div class="ai-badge">AI picks</div>
+    <p class="section-label">Choose where you're taking her</p>
+    <div id="venueList" class="venue-list"></div>
+    <div class="note-box">
+      <label class="note-label">Add your plan idea</label>
+      <textarea class="note-input" id="noteInput" placeholder="e.g. Let's do dinner first then walk to a wine bar after, maybe end with karaoke?"></textarea>
+      <div class="note-nudge">Bonus points for adding a walk, a nightcap, or something spontaneous. The main character deserves the full experience.</div>
+    </div>
+    <div class="confirm-bar">
+      <button class="btn btn-primary" id="btnConfirm" onclick="confirmClaim()" disabled>Lock it in →</button>
+      <button class="btn-ghost-s" onclick="goBack(2)">← Change neighborhood</button>
     </div>
   </div>
 
   <!-- Success -->
-  <div class="success-screen" id="successScreen">
-    <div class="success-icon">🎉</div>
-    <div class="success-title">You're in, <em id="successName"></em></div>
-    <div class="success-date" id="successDate"></div>
-    <div class="success-note">She's been notified. Get ready to be the best wing woman of all time.</div>
+  <div class="view" id="successView">
+    <div class="success-view">
+      <div class="success-icon">✨</div>
+      <div class="success-title">You're <em>officially</em> her wing woman.</div>
+      <div class="success-date" id="successDate"></div>
+      <div class="success-venue" id="successVenue"></div>
+      <div class="success-note" style="margin-bottom:1.5rem;">She's been notified and your plan is locked. Time to start plotting the perfect night for the main character.</div>
+      <button class="btn btn-primary" style="max-width:280px;margin:0 auto;justify-content:center;" onclick="showPlannerFromSuccess()">✦ Now let's plan the night →</button>
+    </div>
   </div>
+
+  <!-- Night Plan (accessible after claim) -->
+  <div class="view" id="plannerView">
+    <div style="margin-bottom:1.5rem;">
+      <p class="section-label">AI-powered</p>
+      <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.3rem;">Plan <em style="color:var(--dusty-rose);">the night</em></h2>
+      <p style="font-size:0.82rem;color:var(--muted);line-height:1.6;">Get a full itinerary for your wing woman night. Already pre-filtered to your neighborhood.</p>
+    </div>
+    <div style="background:var(--white);border-radius:14px;padding:1.25rem;border:1px solid rgba(196,133,106,0.15);margin-bottom:1.1rem;">
+      <div class="form-group" style="margin-bottom:0.75rem;">
+        <label class="note-label">Vibe tonight</label>
+        <select class="note-input" id="fpVibe" style="min-height:0;padding:0.55rem 0.8rem;resize:none;">
+          <option>After-work happy hour</option>
+          <option>Casual-cool night out</option>
+          <option selected>High energy, meet people</option>
+          <option>Low-key, good convos</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="note-label">Group size</label>
+        <select class="note-input" id="fpSize" style="min-height:0;padding:0.55rem 0.8rem;resize:none;">
+          <option selected>Just me + the main character</option>
+          <option>Small group (3-4)</option>
+          <option>Bigger crew (5+)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:0.75rem;" onclick="generateFriendPlan()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+      Generate my night plan
+    </button>
+    <div id="fpOutput" style="display:none;"></div>
+    <button class="btn-ghost-s" onclick="showView('successView')" style="margin-top:0.5rem;">← Back</button>
+  </div>
+
 </div>
 
 <script>
 const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const DAYS_SHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const MONTHS_LONG=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS_S=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTHS_S=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-// Read config from parent domain (same origin) — injected at deploy time
-// For Vercel, these get replaced during build. For quick testing, paste here:
 const SB_URL = localStorage.getItem('ww_sb_url') || 'YOUR_SUPABASE_URL';
 const SB_KEY = localStorage.getItem('ww_sb_key') || 'YOUR_SUPABASE_ANON_KEY';
-
 const sb = supabase.createClient(SB_URL, SB_KEY);
 
-let friendData = null;
-let selectedDate = null;
-let allDates = [];
-let claimedDates = [];
+const NEIGHBORHOODS = [
+  {
+    id:'little_italy',
+    name:'Little Italy',
+    teaser:'The best after-work bar scene in SD. Finance and tech crowd flows in by 6:30.',
+    why:'Highest concentration of walkable upscale bars in the city. The after-work crowd here skews professional, ambitious, and social.',
+    offices:['Procore Technologies','Mitek Systems','Downtown financial district'],
+    industries:['Finance','SaaS','Startups','Legal'],
+    bestFor:'After-work drinks, cocktail bars, upscale dinner',
+    bestNights:'Tuesday through Thursday',
+    maleSkew:'High',
+    highlight:'If he works downtown, this is where he unwinds. The bar layouts force conversation.'
+  },
+  {
+    id:'downtown_gaslamp',
+    name:'Downtown / Gaslamp',
+    teaser:'Business travelers, finance, and the city\'s most male-skewed bar scene.',
+    why:'Core financial and civic district with 900+ businesses. Heavy business traveler presence midweek means a constant rotation of new faces.',
+    offices:['Classy','ESET North America','J. Craig Venter Institute','Government + civic orgs'],
+    industries:['Finance','Government','SaaS','Life Sciences'],
+    bestFor:'Hotel bars, speakeasies, upscale cocktail spots',
+    bestNights:'Wednesday and Thursday',
+    maleSkew:'Very high',
+    highlight:'Business travelers + downtown workers = two different pools of interesting men in one neighborhood.'
+  },
+  {
+    id:'la_jolla',
+    name:'La Jolla / UTC',
+    teaser:'San Diego\'s innovation corridor. Biotech money, tech execs, ocean views.',
+    why:'Home to Qualcomm HQ, Illumina, UC San Diego, and a massive biotech cluster. The people drinking here built things.',
+    offices:['Qualcomm','Illumina','ServiceNow','Pfizer','UC San Diego'],
+    industries:['Biotech','Enterprise tech','Research','Academia'],
+    bestFor:'Upscale restaurant bars, ocean view spots, rooftop drinks',
+    bestNights:'Thursday and Friday',
+    maleSkew:'High (skews 35-50, accomplished)',
+    highlight:'If you want smart, ambitious, and financially stable, this is the zip code.'
+  },
+  {
+    id:'del_mar',
+    name:'Del Mar / Carmel Valley',
+    teaser:'Coastal executives, finance, and wealth management. Low-key but high value.',
+    why:'LPL Financial HQ, Amazon corporate presence, Workday and Oracle regional offices. The exec crowd lives and works here.',
+    offices:['LPL Financial','Amazon (corporate)','Workday','Oracle'],
+    industries:['Finance','Wealth management','Enterprise tech','Professional services'],
+    bestFor:'Upscale restaurant bars, coastal spots, village wine bars',
+    bestNights:'Thursday and Friday',
+    maleSkew:'High (executive crowd)',
+    highlight:'These guys leave work at 6 and want a relaxed, quality experience. Not a bar-hopper crowd, but a let\'s-have-a-real-conversation crowd.'
+  },
+  {
+    id:'north_park',
+    name:'North Park',
+    teaser:'Creatives, tech workers, and the most interesting bar scene in the city.',
+    why:'Younger professional crowd, heavy in creative and tech industries. More conversational and less performative than downtown.',
+    offices:['Creative agencies','Startups','Remote tech workers'],
+    industries:['Creative','Tech','Design','Marketing'],
+    bestFor:'Craft cocktail bars, breweries, live music venues',
+    bestNights:'Wednesday through Saturday',
+    maleSkew:'Medium-high (younger, creative)',
+    highlight:'North Park guys are more likely to actually talk to you. The vibe is curious and social vs. see-and-be-seen.'
+  },
+  {
+    id:'point_loma',
+    name:'Point Loma / Liberty Station',
+    teaser:'Creative, defense-adjacent, and an underrated dinner scene with a local crowd.',
+    why:'Growing hub for creative agencies, defense contractors, and hospitality. Liberty Station draws a mixed, interesting crowd with strong local regulars.',
+    offices:['Creative agencies','Defense contractors','Hospitality businesses'],
+    industries:['Creative','Defense','Marketing','Hospitality'],
+    bestFor:'Restaurant bars, brewery taprooms, creative venues',
+    bestNights:'Thursday and Friday',
+    maleSkew:'Medium-high (mixed, interesting)',
+    highlight:'Less touristy than downtown, more interesting than PB. The Liberty Station crowd is local, employed, and not trying too hard.'
+  },
+  {
+    id:'torrey_pines',
+    name:'Torrey Pines / Sorrento Valley',
+    teaser:'Elite biotech and tech campus corridor. Golf, science, and serious money.',
+    why:'Scripps Research, Salk Institute, Google SD, Amazon AWS teams, and a dense biotech cluster. This is where San Diego\'s highest earners work.',
+    offices:['Scripps Research','Salk Institute','Google','Amazon AWS','Qualcomm campuses'],
+    industries:['Biotech','Pharma','Software engineering','AI/Cloud'],
+    bestFor:'Hotel bars, upscale La Jolla spots (5 min away), golf course bars',
+    bestNights:'Thursday (post-work)',
+    maleSkew:'Very high (heavily male industries)',
+    highlight:'The highest concentration of advanced degrees and high salaries in SD. They tend to spill into La Jolla and Del Mar after work.'
+  },
+];
 
-async function init() {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get('token');
-  if (!token) { showError(); return; }
+const VENUES = {
+  little_italy:[
+    {name:'Kettner Exchange',type:'Cocktail bar',why:'Best after-work bar in SD. The bar layout makes conversation unavoidable. Finance and tech crowd by 6:30.',vibes:['after-work','craft cocktails'],crowd:'Finance, tech',time:'6–9pm',tier:'gold'},
+    {name:'Born and Raised',type:'Steakhouse bar',why:'Sophisticated crowd, beautiful space. The menu is a natural conversation starter. Dress up.',vibes:['upscale','steakhouse'],crowd:'Finance, professionals',time:'7–10pm',tier:'rose'},
+    {name:'Ironside Fish & Oyster',type:'Oyster bar',why:'Bar-only seating is social by design. Oysters break the ice instantly.',vibes:['oyster bar','nautical'],crowd:'Foodies, professionals',time:'6–9pm',tier:''},
+    {name:'Waterfront Bar & Grill',type:'Classic dive bar',why:'Unpretentious, male-skewed, easy to strike up a conversation. The oldest bar in Little Italy.',vibes:['dive bar','regulars'],crowd:'Locals, mixed',time:'5–8pm',tier:''},
+    {name:'Herb & Wood',type:'Restaurant bar',why:'Beautiful open kitchen bar. The food is a conversation piece and the crowd is creative and curious.',vibes:['restaurant bar','modern'],crowd:'Foodies, creative professionals',time:'6–10pm',tier:''},
+  ],
+  downtown_gaslamp:[
+    {name:'The Nolen',type:'Rooftop bar',why:'Rooftop rail is a built-in conversation opener. Arrive before 8 to get the right spot.',vibes:['rooftop','cocktails'],crowd:'Professionals, mixed',time:'7–11pm',tier:'gold'},
+    {name:'The Grant Grill',type:'Hotel bar',why:'Business travelers + downtown workers. Male-skewed, old school cool. Very easy to talk to people.',vibes:['hotel bar','classic'],crowd:'Business travelers, professionals',time:'6–9pm',tier:'rose'},
+    {name:'Noble Experiment',type:'Speakeasy',why:'Hidden door entrance is an instant ice breaker. Intimate, conversation-first space.',vibes:['speakeasy','cocktail'],crowd:'Cocktail nerds, professionals',time:'8–11pm',tier:''},
+    {name:'Rustic Root',type:'Multi-level bar',why:'Three floors of different vibes. Easy to move around and meet different groups of people throughout the night.',vibes:['multi-level','rooftop'],crowd:'Young professionals, mixed',time:'7–11pm',tier:''},
+    {name:'Analog Bar',type:'Vinyl + cocktails',why:'Record player, great cocktails, and a crowd that actually wants to talk. Conversation is basically built into the concept.',vibes:['cocktail bar','music'],crowd:'Creatives, professionals',time:'7pm–close',tier:''},
+  ],
+  la_jolla:[
+    {name:'George\'s at the Cove',type:'Rooftop bar',why:'SD\'s most scenic bar. Upscale but not stuffy. Strong after-work crowd Wed and Thu.',vibes:['ocean view','upscale'],crowd:'Professionals, 35-50 crowd',time:'6–9pm',tier:'gold'},
+    {name:'The Whaling Bar',type:'Classic bar',why:'Historic La Jolla institution. Cultured, conversation-heavy crowd. Very male-skewed.',vibes:['classic bar','literary history'],crowd:'Locals, older professionals',time:'6–9pm',tier:'rose'},
+    {name:'Herringbone La Jolla',type:'Restaurant bar',why:'Beautiful space, beautiful crowd. Bar area fills quickly. Dress for it.',vibes:['restaurant bar','coastal upscale'],crowd:'Well-dressed mixed crowd',time:'7–10pm',tier:''},
+    {name:'The Marine Room',type:'Oceanfront bar',why:'Iconic La Jolla spot. The kind of place that impresses everyone. Reserve a bar spot.',vibes:['oceanfront','classic'],crowd:'Accomplished professionals',time:'6–9pm',tier:''},
+    {name:'Barfly',type:'Neighborhood bar',why:'La Jolla locals only. Low-key, unpretentious, and the regulars are genuinely interesting people.',vibes:['neighborhood bar','casual'],crowd:'La Jolla locals, professionals',time:'6–10pm',tier:''},
+  ],
+  del_mar:[
+    {name:'Viewpoint Brewing',type:'Rooftop brewery',why:'Best rooftop views north of the city. Active, outdoorsy exec crowd. Sunset happy hour is the move.',vibes:['rooftop','brewery'],crowd:'Active professionals, executives',time:'4–8pm',tier:'gold'},
+    {name:'Il Posto Ristorante',type:'Italian restaurant bar',why:'Village Del Mar regular crowd. Upscale without being pretentious. Intimate bar area.',vibes:['Italian','restaurant bar'],crowd:'Del Mar regulars, 40s professionals',time:'7–9pm',tier:'rose'},
+    {name:'Poseidon Restaurant',type:'Beach bar',why:'Direct beach access. Great transition from afternoon to evening. Good energy.',vibes:['beach bar','seafood'],crowd:'Beachgoers, professionals',time:'5–8pm',tier:''},
+    {name:'Jake\'s Del Mar',type:'Oceanfront restaurant bar',why:'Classic Del Mar. The bar crowd here is loyal and local. Beautiful setting, easy conversations.',vibes:['oceanfront','classic'],crowd:'Del Mar locals, 40s crowd',time:'5–9pm',tier:''},
+    {name:'Pacifica Del Mar',type:'Restaurant bar',why:'Upscale but approachable. The cocktail happy hour draws the Carmel Valley executive crowd.',vibes:['upscale','happy hour'],crowd:'Carmel Valley executives, professionals',time:'4–7pm',tier:''},
+  ],
+  north_park:[
+    {name:'Polite Provisions',type:'Craft cocktail bar',why:'Most interesting bar in SD. The menu starts every conversation. Creative, smart crowd.',vibes:['craft cocktail','apothecary'],crowd:'Creatives, tech workers',time:'7–10pm',tier:'gold'},
+    {name:'Tiger!Tiger!',type:'Beer garden',why:'Massive outdoor patio makes circulating easy. Low-pressure and very social.',vibes:['craft beer','outdoor'],crowd:'Neighborhood locals, young professionals',time:'6–9pm',tier:'rose'},
+    {name:'The Casbah',type:'Live music bar',why:'Live music nights perfect for shoulder-to-shoulder proximity. Check their calendar.',vibes:['live music','indie bar'],crowd:'Musicians, creatives, 30s crowd',time:'8–11pm',tier:''},
+    {name:'Gravity Heights',type:'Brewery and pub',why:'Communal tables and a tech-heavy weeknight crowd. Easy to start a conversation over a shared flight.',vibes:['brewery','communal'],crowd:'Tech workers, young professionals',time:'6–9pm',tier:''},
+    {name:'Station Tavern',type:'Gastropub',why:'Cozy neighborhood institution. The burger is an ice breaker and the crowd is laid-back and approachable.',vibes:['gastropub','neighborhood'],crowd:'North Park locals, 30s crowd',time:'6–10pm',tier:''},
+  ],
+  point_loma:[
+    {name:'Shelter Social Club',type:'Restaurant bar',why:'Liberty Station\'s best bar scene. Local creative crowd, strong regulars, great energy.',vibes:['restaurant bar','creative'],crowd:'Creatives, defense, locals',time:'6–9pm',tier:'gold'},
+    {name:'Stone Brewing Liberty Station',type:'Brewery taproom',why:'Huge outdoor space, easy to meet people, communal tables encourage conversation.',vibes:['brewery','outdoor'],crowd:'Mixed local, young professionals',time:'4–8pm',tier:'rose'},
+    {name:'The Smoking Gun',type:'Cocktail bar',why:'Cozy, intimate, strong cocktail program. The kind of bar where you actually talk to your neighbors.',vibes:['cocktail bar','intimate'],crowd:'Locals, 30s crowd',time:'7–11pm',tier:''},
+    {name:'Ketch Grill & Taps',type:'Waterfront bar',why:'Right on the water with a relaxed local vibe. The sunset view alone is a conversation starter.',vibes:['waterfront','casual'],crowd:'Point Loma locals, boaters',time:'5–9pm',tier:''},
+    {name:'The Red Door',type:'Wine bar',why:'Intimate wine bar with a sophisticated local crowd. Pours are generous and the conversations are real.',vibes:['wine bar','intimate'],crowd:'Professionals, locals, 30s-40s',time:'5–10pm',tier:''},
+  ],
+  torrey_pines:[
+    {name:'Lodge Torrey Pines Bar',type:'Hotel bar',why:'Heavy male skew from the Torrey Pines golf and conference crowd. Relaxed, easy conversation.',vibes:['hotel bar','golf adjacent'],crowd:'Business travelers, 40s+ professionals',time:'5–8pm',tier:'gold'},
+    {name:'George\'s at the Cove',type:'Rooftop bar',why:'5 minutes from the corridor. The Torrey Pines crowd migrates here after work on Thursdays.',vibes:['ocean view','upscale'],crowd:'Biotech, tech professionals',time:'6–9pm',tier:'rose'},
+    {name:'The Marine Room',type:'Oceanfront bar',why:'Iconic La Jolla spot. The kind of place that impresses everyone. Reserve a bar spot.',vibes:['oceanfront','classic'],crowd:'Accomplished professionals',time:'6–9pm',tier:''},
+    {name:'Herringbone La Jolla',type:'Restaurant bar',why:'The Scripps and Salk crowd unwinds here on Thursdays. Beautiful space, effortlessly social.',vibes:['restaurant bar','upscale'],crowd:'Biotech, research professionals',time:'7–10pm',tier:''},
+    {name:'Puesto La Jolla',type:'Mexican restaurant bar',why:'Lively, beautiful bar with a great cocktail program. The energy is social and the crowd is accomplished.',vibes:['cocktails','lively'],crowd:'Young professionals, mixed',time:'6–10pm',tier:''},
+  ],
+};
 
-  try {
-    // Load friend by token
-    const { data: friend, error } = await sb
-      .from('ww_friends')
-      .select('*, ww_sessions(*)')
-      .eq('claim_token', token)
-      .single();
+let friendData=null, allDates=[], claimedDates=[], selectedDate=null, selectedHood=null, selectedVenue=null;
 
-    if (error || !friend) { showError(); return; }
-    friendData = friend;
-
-    // Update hero
-    document.getElementById('heroSub').textContent = `${friend.name}, pick one night and claim it. First come, first served.`;
-
-    // Load dates and claims for this session
-    const [{ data: dates }, { data: claims }] = await Promise.all([
-      sb.from('ww_dates').select('date_iso').eq('session_id', friend.session_id).order('date_iso'),
-      sb.from('ww_claims').select('date_iso, friend_id').eq('session_id', friend.session_id)
+async function init(){
+  const params=new URLSearchParams(window.location.search);
+  const token=params.get('token');
+  if(!token){showError();return;}
+  try{
+    const{data:friend,error}=await sb.from('ww_friends').select('*').eq('claim_token',token).single();
+    if(error||!friend){showError();return;}
+    friendData=friend;
+    document.getElementById('heroSub').textContent=`${friend.name}, your bestie is the main character this month. Pick a night, pick a spot, and make it iconic.`;
+    const[{data:dates},{data:claims}]=await Promise.all([
+      sb.from('ww_dates').select('date_iso').eq('session_id',friend.session_id).order('date_iso'),
+      sb.from('ww_claims').select('date_iso,friend_id,venue_name,friend_note').eq('session_id',friend.session_id)
     ]);
-
-    allDates = dates || [];
-    claimedDates = claims || [];
-
-    // Check if this friend already claimed
-    const myClaim = claimedDates.find(c => c.friend_id === friend.id);
-    if (myClaim) {
-      showAlreadyClaimed(myClaim.date_iso);
-      return;
-    }
-
-    showPickView();
-  } catch(e) {
-    console.error(e);
-    showError();
-  }
+    allDates=dates||[];claimedDates=claims||[];
+    const myClaim=claimedDates.find(c=>c.friend_id===friend.id);
+    if(myClaim){showAlreadyClaimed(myClaim);return;}
+    showStep(1);
+  }catch(e){console.error(e);showError();}
 }
 
-function showError() {
-  document.getElementById('loadingScreen').style.display = 'none';
-  document.getElementById('errorScreen').style.display = 'block';
+function showError(){showView('errorView');}
+function showAlreadyClaimed(claim){
+  const d=new Date(claim.date_iso+'T12:00:00');
+  document.getElementById('alreadyDate').textContent=`${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`;
+  showView('alreadyView');
 }
 
-function showAlreadyClaimed(dateIso) {
-  document.getElementById('loadingScreen').style.display = 'none';
-  const d = new Date(dateIso + 'T12:00:00');
-  document.getElementById('alreadyClaimedDate').textContent =
-    `${DAYS[d.getDay()]}, ${MONTHS_LONG[d.getMonth()]} ${d.getDate()}`;
-  document.getElementById('alreadyClaimedCard').style.display = 'block';
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-function showPickView() {
-  document.getElementById('loadingScreen').style.display = 'none';
-  const takenSet = new Set(claimedDates.map(c => c.date_iso));
-  const container = document.getElementById('dateOptions');
+function showStep(n){
+  if(n===1){buildDateList();showView('step1View');}
+  else if(n===2){buildHoodGrid();showView('step2View');}
+  else if(n===3){buildVenueList();showView('step3View');}
+}
 
-  // Only show dates that aren't taken (or show all with taken label)
-  const available = allDates.filter(({ date_iso }) => !takenSet.has(date_iso));
-  const taken = allDates.filter(({ date_iso }) => takenSet.has(date_iso));
-  const toRender = [...available, ...taken];
+function goBack(n){showStep(n);}
 
-  if (!available.length) {
-    container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-style:italic;font-family:Playfair Display,serif;">All nights have been claimed. Better luck next time!</div>';
-    document.getElementById('pickView').style.display = 'block';
-    document.getElementById('confirmBtn').style.display = 'none';
+function buildDateList(){
+  const taken=new Set(claimedDates.map(c=>c.date_iso));
+  const avail=allDates.filter(({date_iso})=>!taken.has(date_iso));
+  const takenList=allDates.filter(({date_iso})=>taken.has(date_iso));
+  if(!avail.length){
+    document.getElementById('dateList').innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-style:italic;font-family:Playfair Display,serif;">All nights have been claimed. The main character is fully booked!</div>';
+    document.getElementById('btnDateNext').style.display='none';
     return;
   }
-
-  container.innerHTML = toRender.map(({ date_iso }) => {
-    const isTaken = takenSet.has(date_iso);
-    const d = new Date(date_iso + 'T12:00:00');
-    return `<div class="date-option ${isTaken?'taken':''}" onclick="${!isTaken?`selectDate('${date_iso}', this)`:''}" data-iso="${date_iso}">
-      <div class="date-box"><div class="db-day">${DAYS_SHORT[d.getDay()]}</div><div class="db-num">${d.getDate()}</div><div class="db-mon">${MONTHS[d.getMonth()]}</div></div>
-      <div class="date-option-info">
-        <div class="do-weekday">${DAYS[d.getDay()]}, ${MONTHS_LONG[d.getMonth()]} ${d.getDate()}</div>
-        <div class="do-sub">${isTaken ? 'Already taken' : 'Tap to claim this night'}</div>
-      </div>
-      ${isTaken
-        ? '<span class="taken-label">Taken</span>'
-        : '<div class="do-check" id="check-'+date_iso+'"></div>'}
+  document.getElementById('dateList').innerHTML=[...avail,...takenList].map(({date_iso})=>{
+    const t=taken.has(date_iso);
+    const d=new Date(date_iso+'T12:00:00');
+    return`<div class="date-option${t?' taken':''}" onclick="${!t?`pickDate('${date_iso}',this)`:''}" data-iso="${date_iso}">
+      <div class="date-box"><div class="db-day">${DAYS_S[d.getDay()]}</div><div class="db-num">${d.getDate()}</div><div class="db-mon">${MONTHS_S[d.getMonth()]}</div></div>
+      <div class="do-info"><div class="do-weekday">${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}</div><div class="do-sub">${t?'Already claimed':'Tap to claim this night'}</div></div>
+      ${t?'<span class="taken-pill">Taken</span>':'<div class="do-check" id="dc-'+date_iso+'"></div>'}
     </div>`;
   }).join('');
-
-  document.getElementById('pickView').style.display = 'block';
 }
 
-function selectDate(iso, el) {
-  document.querySelectorAll('.date-option').forEach(d => { d.classList.remove('selected'); const c=d.querySelector('.do-check'); if(c) c.textContent=''; });
+function pickDate(iso,el){
+  document.querySelectorAll('.date-option').forEach(d=>{d.classList.remove('selected');const c=d.querySelector('.do-check');if(c)c.textContent='';});
   el.classList.add('selected');
-  const check = document.getElementById('check-' + iso);
-  if (check) check.textContent = '✓';
-  selectedDate = iso;
-  document.getElementById('confirmBtn').disabled = false;
+  const c=document.getElementById('dc-'+iso);if(c)c.textContent='✓';
+  selectedDate=iso;
+  document.getElementById('btnDateNext').disabled=false;
 }
 
-async function confirmClaim() {
-  if (!selectedDate || !friendData) return;
-  const btn = document.getElementById('confirmBtn');
-  btn.innerHTML = '<div class="spinner"></div>';
-  btn.disabled = true;
+function goToStep2(){if(!selectedDate)return;showStep(2);}
+
+function buildHoodGrid(){
+  document.getElementById('hoodGrid').innerHTML=NEIGHBORHOODS.map(h=>`
+    <div class="hood-card" id="hc-${h.id}" onclick="pickHood('${h.id}',event)">
+      <div class="hood-card-header">
+        <div class="hood-select-circle" id="hsc-${h.id}"></div>
+        <div class="hood-card-main">
+          <div class="hood-name">${h.name}</div>
+          <div class="hood-teaser">${h.teaser}</div>
+        </div>
+      </div>
+      <div class="hood-expand-btn" onclick="toggleIntel('${h.id}',event)">
+        <span id="hei-${h.id}">+ See neighborhood intel</span>
+      </div>
+      <div class="hood-intel" id="hi-${h.id}">
+        <div class="hood-intel-inner">
+          <div class="intel-row"><div class="intel-label">Why go here</div><div class="intel-value">${h.why}</div></div>
+          <div class="intel-row"><div class="intel-label">Who works nearby</div><div class="intel-value">${h.offices.map(o=>`<span class="intel-tag">${o}</span>`).join('')}</div></div>
+          <div class="intel-row"><div class="intel-label">Industries</div><div class="intel-value">${h.industries.map(i=>`<span class="intel-tag">${i}</span>`).join('')}</div></div>
+          <div class="intel-row"><div class="intel-label">Best for</div><div class="intel-value">${h.bestFor}</div></div>
+          <div class="intel-row"><div class="intel-label">Best nights</div><div class="intel-value">${h.bestNights}</div></div>
+          <div class="intel-row"><div class="intel-label">Male skew</div><div class="intel-value">${h.maleSkew}</div></div>
+          <div class="intel-highlight">"${h.highlight}"</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleIntel(id,e){
+  e.stopPropagation();
+  const panel=document.getElementById('hi-'+id);
+  const btn=document.getElementById('hei-'+id);
+  const open=panel.classList.toggle('open');
+  btn.textContent=open?'− Hide intel':'+ See neighborhood intel';
+}
+
+function pickHood(id,e){
+  if(e.target.closest('.hood-expand-btn')||e.target.closest('.hood-intel'))return;
+  document.querySelectorAll('.hood-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('[id^="hsc-"]').forEach(c=>c.textContent='');
+  document.getElementById('hc-'+id).classList.add('selected');
+  document.getElementById('hsc-'+id).textContent='✓';
+  selectedHood=id;
+  document.getElementById('btnHoodNext').disabled=false;
+}
+
+function goToStep3(){if(!selectedHood)return;showStep(3);}
+
+function buildVenueList(){
+  const venues=VENUES[selectedHood]||[];
+  document.getElementById('venueList').innerHTML=venues.map((v,i)=>`
+    <div class="venue-card ${v.tier}" id="vc-${i}" onclick="pickVenue(${i},this)">
+      <div class="venue-card-header">
+        <div>
+          <div class="venue-card-name">${v.name}</div>
+          <div class="venue-hood-tag">${v.type}</div>
+        </div>
+        <div class="venue-card-check" id="vcc-${i}"></div>
+      </div>
+      <div class="venue-why">${v.why}</div>
+      <div class="venue-tags">
+        ${v.vibes.map(t=>`<span class="vtag vtag-vibe">${t}</span>`).join('')}
+        <span class="vtag vtag-crowd">${v.crowd}</span>
+        <span class="vtag vtag-time">${v.time}</span>
+      </div>
+    </div>`).join('') +
+    `<div class="venue-card" id="vc-custom" onclick="pickCustomVenue(this)" style="border-style:dashed;">
+      <div class="venue-card-header">
+        <div>
+          <div class="venue-card-name" style="font-family:'DM Sans',sans-serif;font-size:0.9rem;">I have a better idea</div>
+          <div class="venue-hood-tag">Your own pick</div>
+        </div>
+        <div class="venue-card-check" id="vcc-custom"></div>
+      </div>
+      <div class="venue-why">You know a spot she'll love? Tell us where you're taking her.</div>
+      <div id="customVenueInput" style="display:none;margin-top:0.5rem;">
+        <input class="note-input" id="customVenueName" placeholder="Name of the bar or restaurant" onclick="event.stopPropagation()" style="min-height:0;padding:0.5rem 0.75rem;margin-bottom:0;" />
+      </div>
+    </div>`;
+}
+
+function pickCustomVenue(el){
+  document.querySelectorAll('.venue-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('[id^="vcc-"]').forEach(c=>c.textContent='');
+  el.classList.add('selected');
+  document.getElementById('vcc-custom').textContent='✓';
+  document.getElementById('customVenueInput').style.display='block';
+  document.getElementById('customVenueName').focus();
+  selectedVenue={name:'',type:'Custom pick',custom:true};
+  document.getElementById('btnConfirm').disabled=false;
+  document.getElementById('customVenueName').oninput=function(){
+    selectedVenue.name=this.value.trim()||'Their own pick';
+  };
+}
+
+function pickVenue(i,el){
+  document.querySelectorAll('.venue-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('[id^="vcc-"]').forEach(c=>c.textContent='');
+  el.classList.add('selected');
+  document.getElementById('vcc-'+i).textContent='✓';
+  selectedVenue=VENUES[selectedHood][i];
+  document.getElementById('btnConfirm').disabled=false;
+}
+
+async function confirmClaim(){
+  if(!selectedDate||!selectedVenue||!friendData)return;
+  const note=document.getElementById('noteInput').value.trim();
+  const btn=document.getElementById('btnConfirm');
+  btn.innerHTML='<div class="spinner"></div>';btn.disabled=true;
+  try{
+    const{data:existing}=await sb.from('ww_claims').select('id').eq('session_id',friendData.session_id).eq('date_iso',selectedDate).single();
+    if(existing){btn.innerHTML='Lock it in →';btn.disabled=false;alert('Someone just grabbed that night! Pick another one.');buildDateList();showStep(1);return;}
+    const{error}=await sb.from('ww_claims').insert({
+      session_id:friendData.session_id,
+      date_iso:selectedDate,
+      friend_id:friendData.id,
+      friend_name:friendData.name,
+      venue_name:selectedVenue.name,
+      venue_type:selectedVenue.type,
+      neighborhood:selectedHood,
+      friend_note:note||null
+    });
+    if(error)throw error;
+    showSuccess();
+  }catch(e){console.error(e);btn.innerHTML='Lock it in →';btn.disabled=false;alert('Something went wrong. Try again.');}
+}
+
+function showSuccess(){
+  const d=new Date(selectedDate+'T12:00:00');
+  document.getElementById('successDate').textContent=`${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`;
+  document.getElementById('successVenue').textContent=selectedVenue.name;
+  showView('successView');
+}
+
+function showPlannerFromSuccess() {
+  showView('plannerView');
+}
+
+const HOOD_NAMES = {
+  little_italy:'Little Italy', downtown_gaslamp:'Downtown / Gaslamp',
+  la_jolla:'La Jolla', del_mar:'Del Mar', north_park:'North Park',
+  point_loma:'Point Loma', torrey_pines:'Torrey Pines'
+};
+
+const ALL_VENUES_FLAT = Object.entries(VENUES).flatMap(([hood, venues]) =>
+  venues.map(v => ({ ...v, hoodId: hood }))
+);
+
+async function generateFriendPlan() {
+  const vibe = document.getElementById('fpVibe').value;
+  const size = document.getElementById('fpSize').value;
+  const hoodName = selectedHood ? (HOOD_NAMES[selectedHood] || selectedHood) : 'Anywhere';
+  const out = document.getElementById('fpOutput');
+  out.style.display = 'block';
+  out.innerHTML = `<div class="ai-output" style="margin-top:1rem;"><div class="ai-label">Curating your night</div><div style="padding:0.75rem 0;"><div class="loading-dots"><span>.</span><span>.</span><span>.</span></div></div></div>`;
+
+  let spots = selectedHood ? ALL_VENUES_FLAT.filter(v => v.hoodId === selectedHood) : ALL_VENUES_FLAT;
+  if (!spots.length) spots = ALL_VENUES_FLAT;
+  spots = spots.slice(0, 6);
+
+  const prompt = `You are a sharp San Diego social strategist and wing woman advisor.
+Two women are going out together. Vibe: "${vibe}". Area: ${hoodName}. Group: ${size}.
+Their confirmed venue is: ${selectedVenue ? selectedVenue.name : 'TBD'}.
+
+Other venue options nearby:
+${spots.map(s => `- ${s.name} (${HOOD_NAMES[s.hoodId]}): ${s.type}. ${s.why} Best time: ${s.time}.`).join('\n')}
+
+Give them a fun, confident night plan. Include: arrival time and positioning tip, 3 tactical tips for meeting people as a duo (not just solo), a suggested flow for the night (e.g. drinks → dinner → nightcap), and one bold "main character move" they should make that night.
+
+Keep it warm, direct, and fun — like advice from your coolest friend.
+
+Respond ONLY in this JSON format:
+{"arrival":"time + tip","flow":"drinks → dinner → etc","tips":["tip1","tip2","tip3"],"mainCharacterMove":"one bold thing to do","vibeScore":88}`;
 
   try {
-    // Race condition protection: check it's still available
-    const { data: existing } = await sb.from('ww_claims')
-      .select('id').eq('session_id', friendData.session_id).eq('date_iso', selectedDate).single();
-
-    if (existing) {
-      btn.textContent = 'Claim this night →';
-      btn.disabled = false;
-      alert('Someone just grabbed that night! Pick another one.');
-      // Refresh view
-      const { data: claims } = await sb.from('ww_claims').select('date_iso, friend_id').eq('session_id', friendData.session_id);
-      claimedDates = claims || [];
-      showPickView();
-      return;
-    }
-
-    const { error } = await sb.from('ww_claims').insert({
-      session_id: friendData.session_id,
-      date_iso: selectedDate,
-      friend_id: friendData.id,
-      friend_name: friendData.name
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, messages:[{role:'user',content:prompt}] })
     });
-
-    if (error) throw error;
-
-    showSuccess(selectedDate);
+    const data = await res.json();
+    const text = data.content.map(i => i.text||'').join('');
+    const plan = JSON.parse(text.replace(/```json|```/g,'').trim());
+    out.innerHTML = `<div class="ai-output" style="margin-top:1rem;">
+      <div class="ai-label">Your night plan</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:0.2rem;">${selectedVenue ? selectedVenue.name : hoodName}</div>
+      <div style="font-size:0.78rem;color:rgba(250,247,242,0.5);margin-bottom:1.1rem;">${hoodName} · ${vibe}</div>
+      <div style="margin-bottom:0.9rem;"><div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--blush);margin-bottom:0.35rem;font-weight:500;">Arrival</div><div style="font-size:0.84rem;line-height:1.6;color:rgba(250,247,242,0.88);">${plan.arrival}</div></div>
+      <div style="margin-bottom:0.9rem;"><div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--blush);margin-bottom:0.35rem;font-weight:500;">The flow</div><div style="font-size:0.84rem;line-height:1.6;color:rgba(250,247,242,0.88);">${plan.flow}</div></div>
+      <div style="margin-bottom:0.9rem;"><div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--blush);margin-bottom:0.35rem;font-weight:500;">Wing woman tactics</div><ul style="list-style:none;">${plan.tips.map(t=>`<li style="padding:0.3rem 0 0.3rem 1.1rem;position:relative;font-size:0.83rem;color:rgba(250,247,242,0.85);line-height:1.5;"><span style="position:absolute;left:0;color:var(--blush);">→</span>${t}</li>`).join('')}</ul></div>
+      <div style="background:rgba(232,196,184,0.12);border-radius:10px;padding:0.85rem 1rem;border-left:3px solid var(--blush);"><div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--blush);margin-bottom:0.35rem;font-weight:500;">Main character move ✦</div><div style="font-size:0.85rem;color:rgba(250,247,242,0.92);line-height:1.6;font-style:italic;">${plan.mainCharacterMove}</div></div>
+    </div>`;
   } catch(e) {
-    console.error(e);
-    btn.textContent = 'Claim this night →';
-    btn.disabled = false;
-    alert('Something went wrong. Try again.');
+    out.innerHTML = `<div class="ai-output" style="margin-top:1rem;"><div class="ai-label">Your night plan</div><div style="font-size:0.85rem;line-height:1.7;color:rgba(250,247,242,0.88);">Arrive by 7pm and claim the bar. Face outward, not inward. Order something worth talking about. Let the night come to you — you're the main character, not the one chasing the scene.</div></div>`;
   }
 }
 
-function showSuccess(dateIso) {
-  document.getElementById('pickView').style.display = 'none';
-  const d = new Date(dateIso + 'T12:00:00');
-  document.getElementById('successName').textContent = friendData.name.split(' ')[0];
-  document.getElementById('successDate').textContent = `${DAYS[d.getDay()]}, ${MONTHS_LONG[d.getMonth()]} ${d.getDate()}`;
-  document.getElementById('successScreen').style.display = 'block';
-}
+function fmtDate(iso){const d=new Date(iso+'T12:00:00');return`${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`;}
 
 init();
 </script>
