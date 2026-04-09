@@ -213,10 +213,46 @@
   <div style="display:flex;align-items:center;gap:1.5rem;">
     <div class="live-label"><div class="live-dot"></div>Live</div>
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="showPage('setup',this)">Setup</button>
+      <button class="nav-tab active" onclick="showPage('home',this)">Home</button>
+      <button class="nav-tab" onclick="showPage('setup',this)">My Rotation</button>
       <button class="nav-tab" onclick="showPage('board',this)">Board</button>
       <button class="nav-tab" onclick="showPage('hotspots',this)">Hotspots</button>
       <button class="nav-tab" onclick="showPage('planner',this)">Night Plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+  <div style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem 1.5rem;">
+    <p class="section-label" style="margin-bottom:1rem;">San Diego · wing woman weekday</p>
+    <h1 style="font-family:'Playfair Display',serif;font-size:2.6rem;line-height:1.15;margin-bottom:0.75rem;max-width:500px;">
+      You're the<br><em style="color:var(--dusty-rose);">main character.</em><br>Act like it.
+    </h1>
+    <p style="color:var(--muted);font-size:0.9rem;max-width:340px;line-height:1.7;margin-bottom:2.5rem;font-weight:300;">San Diego's smartest night out starts here. Recruit your wing women, get AI-curated plans, and walk into every room like you own it.</p>
+    <div style="display:flex;flex-direction:column;gap:0.75rem;width:100%;max-width:360px;">
+      <button class="btn btn-primary" style="justify-content:center;padding:1rem 1.5rem;font-size:0.95rem;letter-spacing:0.01em;" onclick="showPage('setup',document.querySelectorAll('.nav-tab')[1])">
+        Build my wing rotation →
+      </button>
+      <button class="btn btn-secondary" style="justify-content:center;padding:0.85rem 1.5rem;font-size:0.88rem;" onclick="showPage('planner',document.querySelectorAll('.nav-tab')[4])">
+        ✦ Soft plans only — curate my night
+      </button>
+    </div>
+    <div style="margin-top:3rem;display:flex;gap:2rem;justify-content:center;align-items:center;">
+      <div style="text-align:center;cursor:pointer;" onclick="showPage('hotspots',document.querySelectorAll('.nav-tab')[3])">
+        <div id="statSpots" style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--accent);">40</div>
+        <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);">Curated spots</div>
+      </div>
+      <div style="width:1px;height:36px;background:rgba(196,133,106,0.2);"></div>
+      <div style="text-align:center;cursor:pointer;" onclick="showPage('board',document.querySelectorAll('.nav-tab')[2])">
+        <div id="statWingWomen" style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--accent);">0</div>
+        <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);">Wing women recruited</div>
+      </div>
+      <div style="width:1px;height:36px;background:rgba(196,133,106,0.2);"></div>
+      <div style="text-align:center;cursor:pointer;" onclick="showPage('planner',document.querySelectorAll('.nav-tab')[4])">
+        <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--accent);">AI</div>
+        <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);">Night planner</div>
+      </div>
     </div>
   </div>
 </div>
@@ -225,7 +261,7 @@
 <div id="page-setup" class="page">
   <p class="section-label" id="stepLabel">Step 1 of 3</p>
   <h1 class="hero-text">Set up your <em>wing rotation</em></h1>
-  <p class="subtitle">Pick up to 7 available nights, add 5 friends with their numbers. They each get a link, claim one night. Your board updates the moment they do.</p>
+  <p class="subtitle">You're the main character. Pick up to 7 available nights, add 5 friends with their numbers. They each get a link, pick a date and a venue. Your board updates the moment they do.</p>
 
   <div class="step-bar">
     <div class="step-item"><div class="step-dot active" id="sdot1">1</div><div class="step-label active" id="slabel1">Your nights</div></div>
@@ -265,7 +301,7 @@
       <div id="inviteList"></div>
       <div style="margin-top:1.1rem;display:flex;gap:0.7rem;">
         <button class="btn btn-ghost" onclick="goToStep(2)">← Edit</button>
-        <button class="btn btn-primary" onclick="showPage('board',document.querySelectorAll('.nav-tab')[1])">Watch the board →</button>
+        <button class="btn btn-primary" onclick="showPage('board',document.querySelectorAll('.nav-tab')[2])">Watch the board →</button>
       </div>
     </div>
   </div>
@@ -276,7 +312,7 @@
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem;gap:1rem;">
     <div>
       <p class="section-label">Live</p>
-      <h1 class="hero-text">Who's got <em>your nights</em></h1>
+      <h1 class="hero-text">Who's got <em>the main character's</em> nights</h1>
     </div>
     <button class="btn btn-ghost" onclick="showPage('setup',document.querySelectorAll('.nav-tab')[0])">Edit setup</button>
   </div>
@@ -304,7 +340,7 @@
       <div class="form-group"><label class="form-label">Vibe tonight</label><select class="form-select" id="planVibe"><option>After-work happy hour</option><option>Casual-cool night out</option><option>High energy, meet people</option><option>Low-key, good convos</option></select></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Neighborhood</label><select class="form-select" id="planHood"><option>Anywhere</option><option>Little Italy</option><option>Downtown / Gaslamp</option><option>Pacific Beach</option><option>North Park</option><option>La Jolla</option><option>Del Mar</option></select></div>
+      <div class="form-group"><label class="form-label">Neighborhood</label><select class="form-select" id="planHood"><option>Anywhere</option><option>Little Italy</option><option>Downtown / Gaslamp</option><option>North Park</option><option>La Jolla</option><option>Del Mar</option><option>Point Loma</option><option>Torrey Pines</option></select></div>
       <div class="form-group"><label class="form-label">Group size</label><select class="form-select" id="planSize"><option>Just me + 1 wing woman</option><option>Small group (3-4)</option><option>Bigger crew (5+)</option></select></div>
     </div>
     <button class="btn btn-ai" onclick="generatePlan()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>Generate my night plan</button>
@@ -320,29 +356,56 @@ let sb = null;
 let SESSION_ID = localStorage.getItem('ww_session_id') || null;
 
 const HOTSPOTS = [
+  // Little Italy (6)
   {name:"Kettner Exchange",hood:"Little Italy",tier:"tier-a",score:94,vibes:["after-work","cocktail bar"],crowd:["finance","tech"],bestTime:"6–9pm",mf:"55/45",energy:"high",note:"Best after-work bar in SD. Office crowd pours in by 6:30. Bar seating is gold."},
   {name:"Born and Raised",hood:"Little Italy",tier:"tier-a",score:91,vibes:["upscale","steakhouse bar"],crowd:["finance","professionals"],bestTime:"7–10pm",mf:"60/40",energy:"medium-high",note:"Sophisticated crowd. The menu is a natural convo starter. Dress up."},
   {name:"Ironside Fish & Oyster",hood:"Little Italy",tier:"tier-b",score:84,vibes:["oyster bar","nautical"],crowd:["foodies","professionals"],bestTime:"6–9pm",mf:"54/46",energy:"medium",note:"Bar-only seating is social by design. Oysters start conversations."},
+  {name:"Herb & Wood",hood:"Little Italy",tier:"tier-b",score:83,vibes:["restaurant bar","modern"],crowd:["foodies","creative professionals"],bestTime:"6–10pm",mf:"52/48",energy:"medium-high",note:"Beautiful open kitchen bar. The food is a conversation piece and the crowd is curious."},
   {name:"Waterfront Bar & Grill",hood:"Little Italy",tier:"tier-b",score:78,vibes:["dive-ish","casual"],crowd:["locals","mixed"],bestTime:"5–8pm",mf:"65/35",energy:"medium",note:"Unpretentious, male-skewed, easy to talk to strangers. Low pressure."},
+  {name:"Juniper & Ivy Bar",hood:"Little Italy",tier:"tier-b",score:82,vibes:["restaurant bar","upscale casual"],crowd:["foodies","professionals"],bestTime:"6–9pm",mf:"53/47",energy:"medium-high",note:"James Beard-nominated kitchen draws a food-obsessed, well-traveled crowd. Great bar conversation."},
+  // Downtown / Gaslamp (6)
   {name:"The Nolen",hood:"Downtown",tier:"tier-a",score:89,vibes:["rooftop","cocktails"],crowd:["professionals","mixed"],bestTime:"7–11pm",mf:"52/48",energy:"high",note:"Rooftop rail is a built-in convo opener. Arrive before 8 to get the right spot."},
   {name:"The Grant Grill",hood:"Downtown",tier:"tier-a",score:86,vibes:["hotel bar","classic"],crowd:["business travelers","professionals"],bestTime:"6–9pm",mf:"62/38",energy:"medium",note:"Business travelers and downtown workers. Male-skewed, old school cool."},
   {name:"Noble Experiment",hood:"Gaslamp",tier:"tier-b",score:82,vibes:["speakeasy","cocktail"],crowd:["cocktail nerds","professionals"],bestTime:"8–11pm",mf:"55/45",energy:"medium",note:"Hidden door entrance is an instant ice breaker. Intimate, convo-first space."},
-  {name:"Mavericks Beach Club",hood:"Pacific Beach",tier:"tier-b",score:78,vibes:["beach club","DJ"],crowd:["young professionals","active"],bestTime:"4–8pm",mf:"50/50",energy:"very high",note:"High volume. Best Thursday or Friday for the after-work beach crowd."},
-  {name:"Pacific Beach Shore Club",hood:"Pacific Beach",tier:"tier-b",score:74,vibes:["rooftop","beach"],crowd:["young mixed"],bestTime:"5–9pm",mf:"50/50",energy:"high",note:"Younger vibe, high volume, low commitment. Good warm-up spot."},
+  {name:"Rustic Root",hood:"Downtown",tier:"tier-b",score:80,vibes:["multi-level bar","rooftop"],crowd:["young professionals","mixed"],bestTime:"7–11pm",mf:"53/47",energy:"high",note:"Three floors of different vibes. Easy to move around and meet different groups throughout the night."},
+  {name:"Analog Bar",hood:"Gaslamp",tier:"tier-b",score:79,vibes:["cocktail bar","vinyl"],crowd:["creatives","professionals"],bestTime:"7pm–close",mf:"54/46",energy:"medium",note:"Record player and great cocktails. Crowd that actually wants to talk."},
+  {name:"Puesto Seaport",hood:"Downtown",tier:"tier-b",score:81,vibes:["lively","Mexican bar"],crowd:["young professionals","mixed"],bestTime:"6–10pm",mf:"52/48",energy:"high",note:"Lively energy, beautiful bar, strong cocktail program. One of the best happy hours downtown."},
+  // North Park (6)
   {name:"Polite Provisions",hood:"North Park",tier:"tier-a",score:90,vibes:["craft cocktail","apothecary"],crowd:["creatives","tech"],bestTime:"7–10pm",mf:"53/47",energy:"medium-high",note:"Most interesting bar in SD. The menu starts every conversation. Creative, smart crowd."},
   {name:"Tiger!Tiger!",hood:"North Park",tier:"tier-b",score:80,vibes:["craft beer","outdoor"],crowd:["neighborhood locals","young professionals"],bestTime:"6–9pm",mf:"56/44",energy:"medium",note:"Massive outdoor patio makes it easy to circulate. Low-pressure and social."},
+  {name:"Gravity Heights",hood:"North Park",tier:"tier-b",score:77,vibes:["brewery","modern pub"],crowd:["tech","young professionals"],bestTime:"6–9pm",mf:"57/43",energy:"medium",note:"Communal tables, tech and startup crowd on weeknights. Easy to share a flight."},
   {name:"The Casbah",hood:"North Park",tier:"tier-b",score:76,vibes:["live music","indie bar"],crowd:["musicians","creatives"],bestTime:"8–11pm",mf:"58/42",energy:"high",note:"Live music nights perfect for shoulder-to-shoulder proximity. Check their calendar."},
-  {name:"Gravity Heights",hood:"North Park",tier:"tier-b",score:77,vibes:["brewery","modern pub"],crowd:["tech","young professionals"],bestTime:"6–9pm",mf:"57/43",energy:"medium",note:"Communal tables, tech and startup crowd on weeknights."},
+  {name:"Station Tavern",hood:"North Park",tier:"tier-b",score:75,vibes:["gastropub","neighborhood"],crowd:["North Park locals","30s crowd"],bestTime:"6–10pm",mf:"56/44",energy:"medium",note:"Cozy neighborhood institution. The burger is an ice breaker and the crowd is approachable."},
+  {name:"Bar Pink",hood:"North Park",tier:"tier-c",score:70,vibes:["dive","dance"],crowd:["mixed local","queer-friendly"],bestTime:"9pm–close",mf:"50/50",energy:"very high",note:"Late night, unpretentious crowd that loves to dance and chat. Low commitment, high fun."},
+  // La Jolla (6)
   {name:"George's at the Cove",hood:"La Jolla",tier:"tier-a",score:92,vibes:["ocean view","upscale"],crowd:["professionals","40s crowd"],bestTime:"6–9pm",mf:"54/46",energy:"medium-high",note:"SD's most scenic rooftop bar. Upscale but not stuffy. Strong Wed and Thu after-work crowd."},
   {name:"The Whaling Bar",hood:"La Jolla",tier:"tier-a",score:85,vibes:["classic bar","literary history"],crowd:["locals","older professionals"],bestTime:"6–9pm",mf:"62/38",energy:"medium",note:"Historic La Jolla institution. Cultured, conversation-heavy. Very male-skewed."},
   {name:"Herringbone La Jolla",hood:"La Jolla",tier:"tier-b",score:81,vibes:["restaurant bar","coastal upscale"],crowd:["well-dressed mixed"],bestTime:"7–10pm",mf:"52/48",energy:"medium-high",note:"Beautiful space, beautiful crowd. Bar area fills quickly. Dress for it."},
-  {name:"Lodge Torrey Pines Bar",hood:"La Jolla",tier:"tier-b",score:79,vibes:["hotel bar","golf adjacent"],crowd:["business travelers","40s+ professionals"],bestTime:"5–8pm",mf:"65/35",energy:"low-medium",note:"Heavy male skew from the Torrey Pines golf and conference crowd."},
+  {name:"The Marine Room",hood:"La Jolla",tier:"tier-b",score:83,vibes:["oceanfront","classic"],crowd:["accomplished professionals"],bestTime:"6–9pm",mf:"57/43",energy:"medium",note:"Iconic La Jolla spot right on the water. The kind of place that impresses everyone."},
+  {name:"Lodge Torrey Pines Bar",hood:"La Jolla",tier:"tier-b",score:79,vibes:["hotel bar","golf adjacent"],crowd:["business travelers","40s+ professionals"],bestTime:"5–8pm",mf:"65/35",energy:"low-medium",note:"Heavy male skew from the Torrey Pines golf and conference crowd. Relaxed, easy conversation."},
+  {name:"Puesto La Jolla",hood:"La Jolla",tier:"tier-b",score:80,vibes:["lively","cocktails"],crowd:["young professionals","mixed"],bestTime:"6–10pm",mf:"52/48",energy:"high",note:"Lively, beautiful bar with a great cocktail program. Social energy and an accomplished crowd."},
+  // Del Mar (6)
   {name:"Viewpoint Brewing",hood:"Del Mar",tier:"tier-a",score:87,vibes:["rooftop brewery","coastal"],crowd:["active professionals","surfers"],bestTime:"4–8pm",mf:"56/44",energy:"medium-high",note:"Best rooftop views north of the city. Active, outdoorsy crowd. Sunset happy hour is the move."},
   {name:"Il Posto Ristorante",hood:"Del Mar",tier:"tier-b",score:80,vibes:["Italian","restaurant bar"],crowd:["Del Mar regulars","40s professionals"],bestTime:"7–9pm",mf:"54/46",energy:"medium",note:"Village Del Mar regular crowd. Upscale without being pretentious."},
   {name:"Poseidon Restaurant",hood:"Del Mar",tier:"tier-b",score:76,vibes:["beach bar","seafood"],crowd:["beachgoers","professionals"],bestTime:"5–8pm",mf:"53/47",energy:"medium-high",note:"Direct beach access. Great transition from afternoon to evening."},
+  {name:"Jake's Del Mar",hood:"Del Mar",tier:"tier-b",score:78,vibes:["oceanfront","classic"],crowd:["Del Mar locals","40s crowd"],bestTime:"5–9pm",mf:"54/46",energy:"medium",note:"Classic Del Mar. Loyal, local bar crowd. Beautiful setting, easy conversations."},
+  {name:"Pacifica Del Mar",hood:"Del Mar",tier:"tier-b",score:77,vibes:["upscale","happy hour"],crowd:["Carmel Valley executives","professionals"],bestTime:"4–7pm",mf:"55/45",energy:"medium",note:"Upscale but approachable. The cocktail happy hour draws the Carmel Valley executive crowd."},
+  {name:"Sbicca Del Mar",hood:"Del Mar",tier:"tier-b",score:79,vibes:["restaurant bar","neighborhood"],crowd:["Del Mar regulars","local professionals"],bestTime:"5–9pm",mf:"53/47",energy:"medium",note:"Del Mar's most beloved local restaurant. Bar area is intimate and the regulars are genuinely interesting."},
+  // Point Loma / Liberty Station (5)
+  {name:"Shelter Social Club",hood:"Point Loma",tier:"tier-a",score:84,vibes:["restaurant bar","creative"],crowd:["creatives","defense","locals"],bestTime:"6–9pm",mf:"55/45",energy:"medium-high",note:"Liberty Station's best bar scene. Local creative crowd, strong regulars, great energy."},
+  {name:"Stone Brewing Liberty Station",hood:"Point Loma",tier:"tier-b",score:78,vibes:["brewery","outdoor"],crowd:["mixed local","young professionals"],bestTime:"4–8pm",mf:"56/44",energy:"medium",note:"Huge outdoor space, easy to meet people, communal tables encourage conversation."},
+  {name:"The Red Door",hood:"Point Loma",tier:"tier-b",score:76,vibes:["wine bar","intimate"],crowd:["professionals","locals","30s-40s"],bestTime:"5–10pm",mf:"52/48",energy:"medium",note:"Intimate wine bar with a sophisticated local crowd. Pours are generous and the conversations are real."},
+  {name:"Ketch Grill & Taps",hood:"Point Loma",tier:"tier-b",score:74,vibes:["waterfront","casual"],crowd:["Point Loma locals","boaters"],bestTime:"5–9pm",mf:"57/43",energy:"medium",note:"Right on the water with a relaxed local vibe. The sunset view alone is a conversation starter."},
+  {name:"The Smoking Gun",hood:"Point Loma",tier:"tier-b",score:75,vibes:["cocktail bar","intimate"],crowd:["locals","30s crowd"],bestTime:"7–11pm",mf:"54/46",energy:"medium",note:"Cozy, intimate cocktail bar. The kind of place where you actually talk to your neighbors."},
+  // Torrey Pines / Sorrento Valley (5)
+  {name:"Lodge Torrey Pines Clubhouse",hood:"Torrey Pines",tier:"tier-a",score:86,vibes:["hotel bar","golf adjacent"],crowd:["business travelers","biotech professionals"],bestTime:"5–8pm",mf:"65/35",energy:"medium",note:"Highest male skew in the city. Biotech and golf crowd. Relaxed, old money energy."},
+  {name:"The Marine Room Bar",hood:"Torrey Pines",tier:"tier-a",score:84,vibes:["oceanfront","classic"],crowd:["accomplished professionals","special occasions"],bestTime:"6–9pm",mf:"57/43",energy:"medium",note:"Iconic spot 5 min from the corridor. The Salk and Scripps crowd comes here for celebrations."},
+  {name:"Herringbone (La Jolla)",hood:"Torrey Pines",tier:"tier-b",score:80,vibes:["restaurant bar","upscale"],crowd:["biotech professionals","tech"],bestTime:"7–10pm",mf:"53/47",energy:"medium-high",note:"The Torrey Pines crowd spills into La Jolla on Thursdays. Beautiful space, great energy."},
+  {name:"Puesto UTC",hood:"Torrey Pines",tier:"tier-b",score:78,vibes:["lively","cocktails"],crowd:["Qualcomm","biotech","young professionals"],bestTime:"6–9pm",mf:"54/46",energy:"high",note:"UTC location draws directly from Qualcomm and the biotech cluster. Lively, social, easy to meet people."},
+  {name:"Bluefire Grill",hood:"Torrey Pines",tier:"tier-b",score:76,vibes:["hotel bar","casual upscale"],crowd:["business travelers","conference crowd"],bestTime:"5–8pm",mf:"60/40",energy:"medium",note:"Hyatt Regency La Jolla bar. Conference and business traveler crowd makes it easy to start conversations."},
 ];
 
-const NEIGHBORHOODS = ['All','Little Italy','Downtown','Gaslamp','Pacific Beach','North Park','La Jolla','Del Mar','Top Rated'];
+const NEIGHBORHOODS = ['All','Little Italy','Downtown','Gaslamp','North Park','La Jolla','Del Mar','Point Loma','Torrey Pines','Top Rated'];
 const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -364,9 +427,20 @@ function initApp(url, key) {
   buildDatePicker();
   buildFriendInputs();
   subscribeToBoard();
+  loadHomeStats();
   if (SESSION_ID) {
-    showPage('board', document.querySelectorAll('.nav-tab')[1]);
+    showPage('board', document.querySelectorAll('.nav-tab')[2]);
   }
+}
+
+async function loadHomeStats() {
+  if (!sb || !SESSION_ID) return;
+  try {
+    const { data: claims } = await sb.from('ww_claims').select('friend_name').eq('session_id', SESSION_ID);
+    const count = claims ? new Set(claims.map(c => c.friend_name)).size : 0;
+    const el = document.getElementById('statWingWomen');
+    if (el) el.textContent = count;
+  } catch(e) { /* silent fail */ }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -383,6 +457,7 @@ function subscribeToBoard() {
       payload => {
         showToast(`${payload.new.friend_name} just claimed a night!`);
         renderBoard();
+        loadHomeStats();
       }
     ).subscribe();
 }
@@ -395,6 +470,7 @@ function showPage(id, el) {
   if (el) el.classList.add('active');
   if (id === 'hotspots') { renderFilters(); renderHotspots('All'); }
   if (id === 'board') renderBoard();
+  if (id === 'planner') { document.getElementById('planOutput').style.display='none'; }
 }
 
 // ── STEP MACHINE ─────────────────────────────────────────────────
@@ -568,7 +644,7 @@ async function renderBoard() {
 
   const [{ data: dates }, { data: claims }] = await Promise.all([
     sb.from('ww_dates').select('date_iso').eq('session_id', SESSION_ID).order('date_iso'),
-    sb.from('ww_claims').select('date_iso, friend_name, created_at').eq('session_id', SESSION_ID)
+    sb.from('ww_claims').select('date_iso, friend_name, venue_name, neighborhood, friend_note, created_at').eq('session_id', SESSION_ID)
   ]);
 
   if (!dates?.length) {
@@ -598,7 +674,9 @@ async function renderBoard() {
       <div class="slot-date-box"><div class="sdb-day">${DAYS[d.getDay()]}</div><div class="sdb-num">${d.getDate()}</div><div class="sdb-mon">${MONTHS[d.getMonth()]}</div></div>
       <div class="slot-info">
         ${claim
-          ? `<div class="slot-name">${claim.friend_name}</div><div class="slot-note">Claimed at ${claimedAt}</div>`
+          ? `<div class="slot-name">${claim.friend_name}</div>
+             ${claim.venue_name ? `<div class="slot-note">${claim.venue_name}${claim.neighborhood ? ' · ' + claim.neighborhood.replace('_',' ') : ''}</div>` : ''}
+             ${claim.friend_note ? `<div class="slot-note" style="color:var(--accent);font-style:italic;">"${claim.friend_note}"</div>` : ''}`
           : `<div class="slot-open">Waiting for someone to claim</div>`}
       </div>
       <span class="slot-badge ${claim?'claimed-badge':'open-badge'}">${claim?'Claimed':'Open'}</span>
@@ -636,7 +714,7 @@ async function generatePlan() {
   out.style.display='block';
   out.innerHTML=`<div class="ai-output"><div class="ai-label">Generating your plan</div><div style="padding:1rem 0;"><div class="loading-dots"><span>.</span><span>.</span><span>.</span></div></div></div>`;
   let spots=[...HOTSPOTS];
-  if(hood!=='Anywhere'){if(hood==='Downtown / Gaslamp')spots=spots.filter(h=>h.hood==='Downtown'||h.hood==='Gaslamp');else spots=spots.filter(h=>h.hood===hood);}
+  if(hood!=='Anywhere'){if(hood==='Downtown / Gaslamp')spots=spots.filter(h=>h.hood==='Downtown'||h.hood==='Gaslamp');else if(hood==='Torrey Pines')spots=spots.filter(h=>h.hood==='Torrey Pines'||h.hood==='La Jolla');else spots=spots.filter(h=>h.hood===hood);}
   if(!spots.length)spots=[...HOTSPOTS];
   spots.sort((a,b)=>b.score-a.score);spots=spots.slice(0,6);
   const prompt=`You are a sharp San Diego social strategist and wing woman advisor. A woman is going out ${day} night. Vibe: "${vibe}". Area: ${hood}. Group: ${size}.\n\nTop venue options:\n${spots.map(s=>`- ${s.name} (${s.hood}): Score ${s.score}, Best time ${s.bestTime}, M/F ${s.mf}, Energy: ${s.energy}. ${s.note}`).join('\n')}\n\nGive a concise, confident game plan: venue pick with reasoning, arrival time, where to position, 3 tactical tips, and a backup venue. Direct and warm, like advice from a smart friend.\n\nRespond ONLY in this JSON format:\n{"venue":"name","hood":"neighborhood","why":"1-2 sentences","arrival":"time","position":"where + why","tips":["tip1","tip2","tip3"],"backup":"venue + one line why","wingwomanScore":85,"meetabilityScore":78,"vibeScore":88}`;
