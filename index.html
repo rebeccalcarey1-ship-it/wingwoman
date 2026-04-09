@@ -210,15 +210,16 @@
 <!-- HEADER -->
 <div class="header" id="appHeader" style="display:none;">
   <div class="logo">wing<span>woman</span> weekday</div>
-  <div style="display:flex;align-items:center;gap:1.5rem;">
-    <div class="live-label"><div class="live-dot"></div>Live</div>
+  <div style="display:flex;align-items:center;gap:1.25rem;">
+    <div class="live-label"><div class="live-dot"></div><span id="headerGreeting">Live</span></div>
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="showPage('home',this)">Home</button>
-      <button class="nav-tab" onclick="showPage('setup',this)">My Rotation</button>
-      <button class="nav-tab" onclick="showPage('board',this)">Board</button>
+      <button class="nav-tab main-char-only" onclick="showPage('setup',this)">My Rotation</button>
+      <button class="nav-tab main-char-only" onclick="showPage('board',this)">Board</button>
       <button class="nav-tab" onclick="showPage('hotspots',this)">Hotspots</button>
       <button class="nav-tab" onclick="showPage('planner',this)">Night Plan</button>
     </div>
+    <button onclick="signOut()" style="background:none;border:none;color:rgba(250,247,242,0.4);font-size:0.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:0.05em;">Sign out</button>
   </div>
 </div>
 
@@ -421,16 +422,50 @@ function saveConfig() {
 
 function initApp(url, key) {
   sb = supabase.createClient(url, key);
-  document.getElementById('configGate').style.display = 'none';
-  document.getElementById('appHeader').style.display = 'flex';
-  document.querySelectorAll('.page')[0].classList.add('active');
-  buildDatePicker();
-  buildFriendInputs();
-  subscribeToBoard();
-  loadHomeStats();
-  if (SESSION_ID) {
-    showPage('board', document.querySelectorAll('.nav-tab')[2]);
-  }
+
+  // Check auth
+  sb.auth.getSession().then(async ({ data: { session } }) => {
+    if (!session) {
+      // Not logged in — redirect to auth
+      const base = window.location.href.replace('index.html','').replace(/\/$/, '');
+      window.location.href = base + '/auth.html';
+      return;
+    }
+
+    // Logged in — load profile
+    const { data: profile } = await sb.from('ww_profiles').select('*').eq('id', session.user.id).single();
+
+    document.getElementById('configGate').style.display = 'none';
+    document.getElementById('appHeader').style.display = 'flex';
+
+    // Personalize header greeting
+    if (profile && profile.first_name) {
+      const greeting = document.getElementById('headerGreeting');
+      if (greeting) greeting.textContent = profile.first_name;
+    }
+
+    // Wing women only see hotspots + night plan
+    if (profile && profile.role === 'wing_woman') {
+      document.querySelectorAll('.main-char-only').forEach(el => el.style.display = 'none');
+    }
+
+    buildDatePicker();
+    buildFriendInputs();
+    subscribeToBoard();
+    loadHomeStats();
+
+    // Handle ?view= param (e.g. from auth redirect)
+    const params = new URLSearchParams(window.location.search);
+    const view = params.get('view');
+    if (view === 'hotspots') {
+      showPage('hotspots', document.querySelectorAll('.nav-tab')[3]);
+    } else if (SESSION_ID) {
+      showPage('board', document.querySelectorAll('.nav-tab')[2]);
+    } else {
+      document.querySelectorAll('.page')[0].classList.add('active');
+      document.querySelectorAll('.nav-tab')[0].classList.add('active');
+    }
+  });
 }
 
 async function loadHomeStats() {
@@ -447,6 +482,11 @@ window.addEventListener('DOMContentLoaded', () => {
   const url = localStorage.getItem('ww_sb_url');
   const key = localStorage.getItem('ww_sb_key');
   if (url && key) initApp(url, key);
+  else {
+    // No credentials — go to auth
+    const base = window.location.href.replace('index.html','').replace(/\/$/, '');
+    window.location.href = base + '/auth.html';
+  }
 });
 
 // ── REAL-TIME SUBSCRIPTION ────────────────────────────────────────
@@ -574,7 +614,6 @@ async function saveAndNext() {
       SESSION_ID = sessionId;
       localStorage.setItem('ww_session_id', sessionId);
     } else {
-      // Clear old data for this session to start fresh
       await sb.from('ww_dates').delete().eq('session_id', sessionId);
       await sb.from('ww_friends').delete().eq('session_id', sessionId);
       await sb.from('ww_claims').delete().eq('session_id', sessionId);
@@ -582,20 +621,23 @@ async function saveAndNext() {
 
     // Save dates
     const dateRows = selectedDates.map(d => ({ session_id: sessionId, date_iso: d }));
-    await sb.from('ww_dates').insert(dateRows);
+    const { error: datesError } = await sb.from('ww_dates').insert(dateRows);
+    if (datesError) throw datesError;
 
     // Save friends
     const friendRows = friends.map(f => ({ session_id: sessionId, name: f.name, phone: f.phone || null }));
-    const { data: savedFriends } = await sb.from('ww_friends').insert(friendRows).select();
+    const { data: savedFriends, error: friendsError } = await sb.from('ww_friends').insert(friendRows).select();
+    if (friendsError) throw friendsError;
 
-    // Subscribe now that we have a session
-    subscribeToBoard();
+    // Try realtime subscription separately — don't let it crash the save
+    try { subscribeToBoard(); } catch(e) { console.warn('Realtime subscription failed silently', e); }
 
-    // Build invite list
+    // Build invite list and advance
     buildInviteList(savedFriends, sessionId);
     goToStep(3);
+
   } catch(e) {
-    console.error(e);
+    console.error('Save error:', e);
     showToast('Error saving. Check your Supabase credentials.');
   }
 
@@ -733,6 +775,13 @@ function renderPlan(p,day,size){
 
 // ── UTILS ─────────────────────────────────────────────────────────
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+
+async function signOut() {
+  await sb.auth.signOut();
+  localStorage.removeItem('ww_session_id');
+  const base = window.location.href.replace('index.html','').replace(/\/$/, '');
+  window.location.href = base + '/auth.html';
+}
 </script>
 </body>
 </html>
