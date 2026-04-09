@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wing Woman Weekday — Pick Your Night</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --cream:#FAF7F2; --blush:#E8C4B8; --dusty-rose:#C4856A;
+    --deep:#2A1F1A; --muted:#7A6A62; --soft:#F0E8E2;
+    --accent:#B5634A; --green:#5A7A5A; --gold:#C9A84C; --white:#FFFFFF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--deep);min-height:100vh;display:flex;flex-direction:column;}
+
+  .top-bar{background:var(--deep);padding:1.1rem 1.5rem;display:flex;align-items:center;gap:0.75rem;}
+  .top-logo{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--cream);}
+  .top-logo span{color:var(--blush);font-style:italic;}
+
+  .hero{background:var(--deep);padding:2.5rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden;}
+  .hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:30px;background:var(--cream);border-radius:30px 30px 0 0;}
+  .hero-eyebrow{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(232,196,184,0.7);margin-bottom:0.75rem;font-weight:500;}
+  .hero-name{font-family:'Playfair Display',serif;font-size:2rem;color:var(--cream);line-height:1.2;margin-bottom:0.4rem;}
+  .hero-name em{color:var(--blush);}
+  .hero-sub{font-size:0.88rem;color:rgba(250,247,242,0.55);max-width:360px;margin:0 auto;line-height:1.6;}
+
+  .content{flex:1;padding:1.5rem;max-width:500px;margin:0 auto;width:100%;}
+
+  .status-card{background:var(--white);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;border:1px solid rgba(196,133,106,0.15);text-align:center;}
+
+  /* Already claimed state */
+  .claimed-view{text-align:center;padding:1rem 0;}
+  .claimed-icon{font-size:2.5rem;margin-bottom:0.75rem;}
+  .claimed-date{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:0.25rem;}
+  .claimed-sub{font-size:0.85rem;color:var(--muted);line-height:1.6;}
+
+  .section-label{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);margin-bottom:0.85rem;font-weight:500;}
+
+  /* Date options */
+  .date-options{display:flex;flex-direction:column;gap:0.55rem;margin-bottom:1.5rem;}
+  .date-option{background:var(--white);border-radius:12px;padding:1rem 1.2rem;border:2px solid rgba(196,133,106,0.15);display:flex;align-items:center;gap:1rem;cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
+  .date-option:hover,.date-option:active{border-color:var(--dusty-rose);transform:scale(1.01);}
+  .date-option.selected{border-color:var(--accent);background:#FDF5F2;}
+  .date-option.taken{opacity:0.38;cursor:not-allowed;pointer-events:none;background:#F8F5F2;}
+  .date-box{background:var(--deep);color:var(--cream);border-radius:8px;padding:0.4rem 0.65rem;text-align:center;min-width:50px;flex-shrink:0;}
+  .db-day{font-size:0.55rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.5;}
+  .db-num{font-family:'Playfair Display',serif;font-size:1.15rem;line-height:1;}
+  .db-mon{font-size:0.54rem;opacity:0.5;}
+  .date-option-info{flex:1;}
+  .do-weekday{font-weight:500;font-size:0.9rem;}
+  .do-sub{font-size:0.74rem;color:var(--muted);margin-top:2px;}
+  .do-check{width:20px;height:20px;border-radius:50%;border:2px solid rgba(196,133,106,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
+  .date-option.selected .do-check{background:var(--accent);border-color:var(--accent);color:white;font-size:10px;}
+
+  .confirm-section{position:sticky;bottom:0;background:var(--cream);padding:1rem 0 1.5rem;border-top:1px solid rgba(196,133,106,0.15);}
+  .btn{padding:0.65rem 1.5rem;border-radius:100px;border:none;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;justify-content:center;gap:0.45rem;width:100%;}
+  .btn-primary{background:var(--deep);color:var(--cream);}
+  .btn-primary:hover{background:var(--accent);}
+  .btn-primary:disabled{opacity:0.4;cursor:not-allowed;}
+
+  .spinner{width:16px;height:16px;border:2px solid rgba(250,247,242,0.3);border-top-color:var(--cream);border-radius:50%;animation:spin 0.7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* Success screen */
+  .success-screen{display:none;text-align:center;padding:2rem 1rem;}
+  .success-icon{width:70px;height:70px;background:#EFF7EF;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:1.8rem;}
+  .success-title{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:0.5rem;}
+  .success-title em{color:var(--dusty-rose);}
+  .success-date{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--accent);margin-bottom:0.75rem;}
+  .success-note{font-size:0.85rem;color:var(--muted);line-height:1.6;max-width:300px;margin:0 auto;}
+
+  .loading-screen{text-align:center;padding:3rem 1rem;}
+  .loading-screen p{font-family:'Playfair Display',serif;font-size:1rem;font-style:italic;color:var(--muted);margin-top:1rem;}
+  .big-spinner{width:36px;height:36px;border:3px solid rgba(196,133,106,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto;}
+
+  .error-screen{text-align:center;padding:3rem 1rem;color:var(--muted);}
+  .error-screen p{font-family:'Playfair Display',serif;font-size:1rem;font-style:italic;}
+
+  .taken-label{font-size:0.68rem;color:var(--muted);background:rgba(196,133,106,0.1);padding:2px 8px;border-radius:100px;font-weight:500;}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-logo">wing<span>woman</span> weekday</div>
+</div>
+
+<div class="hero">
+  <div class="hero-eyebrow">You've been invited</div>
+  <div class="hero-name">Pick your <em>night</em></div>
+  <div class="hero-sub" id="heroSub">Loading your invite...</div>
+</div>
+
+<div class="content">
+  <!-- Loading -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="big-spinner"></div>
+    <p>Loading your dates...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="error-screen" id="errorScreen" style="display:none;">
+    <p>This link doesn't look right, or it's expired.</p>
+  </div>
+
+  <!-- Already claimed -->
+  <div class="status-card" id="alreadyClaimedCard" style="display:none;">
+    <div class="claimed-view">
+      <div class="claimed-icon">🗓️</div>
+      <div class="claimed-date" id="alreadyClaimedDate"></div>
+      <div class="claimed-sub">You're already locked in for this night. See you then!</div>
+    </div>
+  </div>
+
+  <!-- Pick a date -->
+  <div id="pickView" style="display:none;">
+    <p class="section-label">Available nights</p>
+    <div class="date-options" id="dateOptions"></div>
+    <div class="confirm-section">
+      <button class="btn btn-primary" id="confirmBtn" onclick="confirmClaim()" disabled>Claim this night →</button>
+    </div>
+  </div>
+
+  <!-- Success -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">You're in, <em id="successName"></em></div>
+    <div class="success-date" id="successDate"></div>
+    <div class="success-note">She's been notified. Get ready to be the best wing woman of all time.</div>
+  </div>
+</div>
+
+<script>
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAYS_SHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_LONG=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// Read config from parent domain (same origin) — injected at deploy time
+// For Vercel, these get replaced during build. For quick testing, paste here:
+const SB_URL = localStorage.getItem('ww_sb_url') || 'YOUR_SUPABASE_URL';
+const SB_KEY = localStorage.getItem('ww_sb_key') || 'YOUR_SUPABASE_ANON_KEY';
+
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+let friendData = null;
+let selectedDate = null;
+let allDates = [];
+let claimedDates = [];
+
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  if (!token) { showError(); return; }
+
+  try {
+    // Load friend by token
+    const { data: friend, error } = await sb
+      .from('ww_friends')
+      .select('*, ww_sessions(*)')
+      .eq('claim_token', token)
+      .single();
+
+    if (error || !friend) { showError(); return; }
+    friendData = friend;
+
+    // Update hero
+    document.getElementById('heroSub').textContent = `${friend.name}, pick one night and claim it. First come, first served.`;
+
+    // Load dates and claims for this session
+    const [{ data: dates }, { data: claims }] = await Promise.all([
+      sb.from('ww_dates').select('date_iso').eq('session_id', friend.session_id).order('date_iso'),
+      sb.from('ww_claims').select('date_iso, friend_id').eq('session_id', friend.session_id)
+    ]);
+
+    allDates = dates || [];
+    claimedDates = claims || [];
+
+    // Check if this friend already claimed
+    const myClaim = claimedDates.find(c => c.friend_id === friend.id);
+    if (myClaim) {
+      showAlreadyClaimed(myClaim.date_iso);
+      return;
+    }
+
+    showPickView();
+  } catch(e) {
+    console.error(e);
+    showError();
+  }
+}
+
+function showError() {
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('errorScreen').style.display = 'block';
+}
+
+function showAlreadyClaimed(dateIso) {
+  document.getElementById('loadingScreen').style.display = 'none';
+  const d = new Date(dateIso + 'T12:00:00');
+  document.getElementById('alreadyClaimedDate').textContent =
+    `${DAYS[d.getDay()]}, ${MONTHS_LONG[d.getMonth()]} ${d.getDate()}`;
+  document.getElementById('alreadyClaimedCard').style.display = 'block';
+}
+
+function showPickView() {
+  document.getElementById('loadingScreen').style.display = 'none';
+  const takenSet = new Set(claimedDates.map(c => c.date_iso));
+  const container = document.getElementById('dateOptions');
+
+  // Only show dates that aren't taken (or show all with taken label)
+  const available = allDates.filter(({ date_iso }) => !takenSet.has(date_iso));
+  const taken = allDates.filter(({ date_iso }) => takenSet.has(date_iso));
+  const toRender = [...available, ...taken];
+
+  if (!available.length) {
+    container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-style:italic;font-family:Playfair Display,serif;">All nights have been claimed. Better luck next time!</div>';
+    document.getElementById('pickView').style.display = 'block';
+    document.getElementById('confirmBtn').style.display = 'none';
+    return;
+  }
+
+  container.innerHTML = toRender.map(({ date_iso }) => {
+    const isTaken = takenSet.has(date_iso);
+    const d = new Date(date_iso + 'T12:00:00');
+    return `<div class="date-option ${isTaken?'taken':''}" onclick="${!isTaken?`selectDate('${date_iso}', this)`:''}" data-iso="${date_iso}">
+      <div class="date-box"><div class="db-day">${DAYS_SHORT[d.getDay()]}</div><div class="db-num">${d.getDate()}</div><div class="db-mon">${MONTHS[d.getMonth()]}</div></div>
+      <div class="date-option-info">
+        <div class="do-weekday">${DAYS[d.getDay()]}, ${MONTHS_LONG[d.getMonth()]} ${d.getDate()}</div>
+        <div class="do-sub">${isTaken ? 'Already taken' : 'Tap to claim this night'}</div>
+      </div>
+      ${isTaken
+        ? '<span class="taken-label">Taken</span>'
+        : '<div class="do-check" id="check-'+date_iso+'"></div>'}
+    </div>`;
+  }).join('');
+
+  document.getElementById('pickView').style.display = 'block';
+}
+
+function selectDate(iso, el) {
+  document.querySelectorAll('.date-option').forEach(d => { d.classList.remove('selected'); const c=d.querySelector('.do-check'); if(c) c.textContent=''; });
+  el.classList.add('selected');
+  const check = document.getElementById('check-' + iso);
+  if (check) check.textContent = '✓';
+  selectedDate = iso;
+  document.getElementById('confirmBtn').disabled = false;
+}
+
+async function confirmClaim() {
+  if (!selectedDate || !friendData) return;
+  const btn = document.getElementById('confirmBtn');
+  btn.innerHTML = '<div class="spinner"></div>';
+  btn.disabled = true;
+
+  try {
+    // Race condition protection: check it's still available
+    const { data: existing } = await sb.from('ww_claims')
+      .select('id').eq('session_id', friendData.session_id).eq('date_iso', selectedDate).single();
+
+    if (existing) {
+      btn.textContent = 'Claim this night →';
+      btn.disabled = false;
+      alert('Someone just grabbed that night! Pick another one.');
+      // Refresh view
+      const { data: claims } = await sb.from('ww_claims').select('date_iso, friend_id').eq('session_id', friendData.session_id);
+      claimedDates = claims || [];
+      showPickView();
+      return;
+    }
+
+    const { error } = await sb.from('ww_claims').insert({
+      session_id: friendData.session_id,
+      date_iso: selectedDate,
+      friend_id: friendData.id,
+      friend_name: friendData.name
+    });
+
+    if (error) throw error;
+
+    showSuccess(selectedDate);
+  } catch(e) {
+    console.error(e);
+    btn.textContent = 'Claim this night →';
+    btn.disabled = false;
+    alert('Something went wrong. Try again.');
+  }
+}
+
+function showSuccess(dateIso) {
+  document.getElementById('pickView').style.display = 'none';
+  const d = new Date(dateIso + 'T12:00:00');
+  document.getElementById('successName').textContent = friendData.name.split(' ')[0];
+  document.getElementById('successDate').textContent = `${DAYS[d.getDay()]}, ${MONTHS_LONG[d.getMonth()]} ${d.getDate()}`;
+  document.getElementById('successScreen').style.display = 'block';
+}
+
+init();
+</script>
+</body>
+</html>

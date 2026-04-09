@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wing Woman Weekday</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --cream:#FAF7F2; --blush:#E8C4B8; --dusty-rose:#C4856A;
+    --deep:#2A1F1A; --muted:#7A6A62; --soft:#F0E8E2;
+    --accent:#B5634A; --green:#5A7A5A; --gold:#C9A84C; --white:#FFFFFF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--deep);min-height:100vh;}
+
+  /* ── CONFIG GATE ── */
+  .config-gate{position:fixed;inset:0;background:var(--deep);display:flex;align-items:center;justify-content:center;z-index:1000;padding:2rem;}
+  .config-box{background:var(--cream);border-radius:20px;padding:2.5rem;max-width:480px;width:100%;}
+  .config-logo{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--deep);margin-bottom:0.25rem;}
+  .config-logo span{color:var(--dusty-rose);font-style:italic;}
+  .config-sub{font-size:0.85rem;color:var(--muted);margin-bottom:2rem;line-height:1.6;}
+  .config-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);font-weight:500;margin-bottom:0.4rem;display:block;}
+  .config-input{width:100%;padding:0.6rem 0.85rem;border:1.5px solid rgba(196,133,106,0.35);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.88rem;background:white;color:var(--deep);outline:none;margin-bottom:1rem;transition:border-color 0.2s;}
+  .config-input:focus{border-color:var(--dusty-rose);}
+  .config-note{font-size:0.75rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.5;}
+  .config-note a{color:var(--accent);}
+
+  /* ── HEADER ── */
+  .header{background:var(--deep);padding:1.1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .logo{font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--cream);}
+  .logo span{color:var(--blush);font-style:italic;}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:#4CAF50;animation:livepulse 2s infinite;margin-right:0.4rem;}
+  @keyframes livepulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+  .live-label{font-size:0.7rem;color:rgba(250,247,242,0.55);display:flex;align-items:center;}
+  .nav-tabs{display:flex;gap:0.2rem;background:rgba(255,255,255,0.08);padding:4px;border-radius:100px;}
+  .nav-tab{padding:0.36rem 0.85rem;border-radius:100px;border:none;background:transparent;color:rgba(250,247,242,0.5);font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:500;cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.04em;}
+  .nav-tab.active{background:var(--blush);color:var(--deep);}
+  .nav-tab:hover:not(.active){color:var(--cream);}
+
+  .page{display:none;padding:1.75rem 2rem;max-width:960px;margin:0 auto;}
+  .page.active{display:block;}
+  .section-label{font-size:0.67rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);margin-bottom:0.65rem;font-weight:500;}
+  .hero-text{font-family:'Playfair Display',serif;font-size:1.9rem;line-height:1.2;margin-bottom:0.35rem;}
+  .hero-text em{color:var(--dusty-rose);}
+  .subtitle{color:var(--muted);font-size:0.88rem;margin-bottom:1.6rem;font-weight:300;line-height:1.6;}
+
+  .btn{padding:0.58rem 1.3rem;border-radius:100px;border:none;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:500;cursor:pointer;transition:all 0.2s;letter-spacing:0.02em;display:inline-flex;align-items:center;gap:0.4rem;}
+  .btn-primary{background:var(--deep);color:var(--cream);}
+  .btn-primary:hover{background:var(--accent);}
+  .btn-primary:disabled{opacity:0.38;cursor:not-allowed;}
+  .btn-secondary{background:transparent;color:var(--accent);border:1.5px solid var(--accent);}
+  .btn-secondary:hover{background:#FDF2EE;}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid rgba(196,133,106,0.25);font-size:0.74rem;padding:0.32rem 0.85rem;}
+  .btn-ghost:hover{border-color:var(--dusty-rose);color:var(--deep);}
+  .btn-ai{background:var(--deep);color:var(--cream);}
+  .btn-ai:hover{background:#4A2A3A;}
+  .btn-sm{padding:0.28rem 0.75rem;font-size:0.7rem;}
+  .btn-copy{background:rgba(196,133,106,0.12);color:var(--accent);border:1px solid rgba(196,133,106,0.25);font-size:0.7rem;padding:0.28rem 0.75rem;}
+  .btn-copy:hover{background:rgba(196,133,106,0.2);}
+
+  .card{background:var(--white);border-radius:14px;padding:1.2rem;border:1px solid rgba(196,133,106,0.15);}
+
+  .form-group{display:flex;flex-direction:column;gap:0.3rem;margin-bottom:0.85rem;}
+  .form-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:500;}
+  .form-input,.form-select{padding:0.52rem 0.8rem;border:1.5px solid rgba(196,133,106,0.3);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.86rem;background:var(--cream);color:var(--deep);outline:none;transition:border-color 0.2s;}
+  .form-input:focus,.form-select:focus{border-color:var(--dusty-rose);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;}
+
+  /* ── STEP BAR ── */
+  .step-bar{display:flex;align-items:center;margin-bottom:1.75rem;}
+  .step-item{display:flex;align-items:center;gap:0.45rem;}
+  .step-dot{width:26px;height:26px;border-radius:50%;background:rgba(196,133,106,0.18);color:var(--muted);font-size:0.68rem;font-weight:600;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;}
+  .step-dot.active{background:var(--deep);color:var(--cream);}
+  .step-dot.done{background:var(--accent);color:white;}
+  .step-label{font-size:0.7rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.06em;}
+  .step-label.active{color:var(--deep);}
+  .step-line{flex:1;height:1px;background:rgba(196,133,106,0.22);margin:0 0.65rem;min-width:16px;}
+  .setup-panel{display:none;}
+  .setup-panel.active{display:block;}
+
+  /* ── DATE PICKER ── */
+  .date-picker-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0.4rem;margin-bottom:1.1rem;}
+  .date-cell{aspect-ratio:1;border-radius:10px;border:1.5px solid rgba(196,133,106,0.2);background:var(--white);cursor:pointer;transition:all 0.18s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;}
+  .date-cell:hover{border-color:var(--blush);}
+  .date-cell.selected{background:var(--deep);border-color:var(--deep);}
+  .date-cell.past{opacity:0.28;cursor:not-allowed;pointer-events:none;}
+  .dc-day{font-size:0.56rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
+  .date-cell.selected .dc-day{color:rgba(250,247,242,0.5);}
+  .dc-num{font-family:'Playfair Display',serif;font-size:1rem;color:var(--deep);line-height:1.1;}
+  .date-cell.selected .dc-num{color:var(--cream);}
+  .dc-mon{font-size:0.54rem;color:var(--muted);}
+  .date-cell.selected .dc-mon{color:rgba(250,247,242,0.4);}
+  .date-counter{font-size:0.78rem;color:var(--muted);margin-bottom:0.85rem;}
+  .date-counter strong{color:var(--accent);}
+
+  /* ── FRIENDS ── */
+  .friend-row{display:flex;align-items:center;gap:0.55rem;margin-bottom:0.5rem;}
+  .friend-num{width:24px;height:24px;border-radius:50%;background:var(--soft);font-size:0.68rem;font-weight:600;color:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+  /* ── BOARD ── */
+  .board-grid{display:flex;flex-direction:column;gap:0.5rem;}
+  .date-slot{background:var(--white);border-radius:12px;padding:0.95rem 1.2rem;border:1.5px solid rgba(196,133,106,0.15);display:flex;align-items:center;gap:0.9rem;transition:all 0.25s;}
+  .date-slot.claimed{border-color:rgba(196,133,106,0.35);background:#FDFAF8;}
+  .date-slot.just-claimed{animation:flashin 0.5s ease;}
+  @keyframes flashin{0%{background:#FFF3EE;border-color:var(--accent);}100%{background:#FDFAF8;}}
+  .slot-date-box{background:var(--deep);color:var(--cream);border-radius:8px;padding:0.38rem 0.6rem;text-align:center;min-width:48px;flex-shrink:0;}
+  .sdb-day{font-size:0.55rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.5;}
+  .sdb-num{font-family:'Playfair Display',serif;font-size:1.1rem;line-height:1;}
+  .sdb-mon{font-size:0.54rem;opacity:0.5;}
+  .slot-info{flex:1;}
+  .slot-name{font-weight:500;font-size:0.88rem;}
+  .slot-note{font-size:0.74rem;color:var(--muted);margin-top:2px;}
+  .slot-open{font-size:0.8rem;color:var(--muted);font-style:italic;}
+  .slot-time{font-size:0.7rem;color:var(--muted);}
+  .slot-badge{font-size:0.62rem;font-weight:600;padding:3px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;}
+  .claimed-badge{background:#EFF7EF;color:var(--green);}
+  .open-badge{background:rgba(196,133,106,0.1);color:var(--muted);}
+  .progress-wrap{height:4px;background:rgba(196,133,106,0.15);border-radius:2px;margin-bottom:1.4rem;}
+  .progress-bar{height:100%;background:var(--accent);border-radius:2px;transition:width 0.5s ease;}
+
+  /* ── INVITE CARDS ── */
+  .invite-card{background:var(--white);border-radius:12px;padding:1rem 1.1rem;margin-bottom:0.5rem;border:1px solid rgba(196,133,106,0.15);display:flex;align-items:center;gap:0.75rem;}
+  .invite-avatar{width:36px;height:36px;border-radius:50%;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;color:var(--accent);flex-shrink:0;}
+  .invite-info{flex:1;}
+  .invite-name{font-weight:500;font-size:0.88rem;}
+  .invite-sub{font-size:0.72rem;color:var(--muted);margin-top:2px;}
+  .invite-actions{display:flex;gap:0.4rem;align-items:center;flex-shrink:0;}
+
+  .info-banner{background:rgba(196,133,106,0.09);border-radius:10px;padding:0.7rem 1rem;font-size:0.8rem;color:var(--muted);margin-bottom:1.1rem;border-left:3px solid var(--dusty-rose);line-height:1.6;}
+  .info-banner strong{color:var(--deep);}
+
+  /* ── HOTSPOTS ── */
+  .filter-row{display:flex;gap:0.35rem;flex-wrap:wrap;margin-bottom:1.1rem;}
+  .filter-pill{padding:0.28rem 0.8rem;border-radius:100px;border:1.5px solid rgba(196,133,106,0.22);background:transparent;font-family:'DM Sans',sans-serif;font-size:0.73rem;color:var(--muted);cursor:pointer;transition:all 0.18s;font-weight:500;}
+  .filter-pill.active{background:var(--deep);color:var(--cream);border-color:var(--deep);}
+  .filter-pill:hover:not(.active){border-color:var(--dusty-rose);color:var(--deep);}
+  .hotspot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.85rem;}
+  .hotspot-card{background:var(--white);border-radius:14px;padding:1.1rem;border:1px solid rgba(196,133,106,0.12);transition:all 0.2s;position:relative;overflow:hidden;}
+  .hotspot-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+  .hotspot-card.tier-a::before{background:var(--gold);}
+  .hotspot-card.tier-b::before{background:var(--dusty-rose);}
+  .hotspot-card.tier-c::before{background:var(--blush);}
+  .hotspot-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(42,31,26,0.08);}
+  .hotspot-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.4rem;}
+  .hotspot-name{font-family:'Playfair Display',serif;font-size:0.97rem;line-height:1.3;}
+  .hotspot-score{background:var(--deep);color:var(--cream);font-size:0.62rem;font-weight:600;padding:2px 7px;border-radius:100px;}
+  .hotspot-hood{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;font-weight:500;}
+  .hotspot-tags{display:flex;flex-wrap:wrap;gap:0.22rem;margin-bottom:0.55rem;}
+  .tag{padding:2px 7px;border-radius:100px;font-size:0.64rem;font-weight:500;}
+  .tag-vibe{background:#F0E8E2;color:var(--dusty-rose);}
+  .tag-crowd{background:#EAF0EA;color:var(--green);}
+  .tag-time{background:#F5F0E8;color:var(--gold);}
+  .hotspot-stats{display:grid;grid-template-columns:1fr 1fr;gap:0.25rem;margin-bottom:0.45rem;}
+  .stat-item{font-size:0.69rem;color:var(--muted);}
+  .stat-item strong{color:var(--deep);font-weight:500;}
+  .hotspot-note{font-size:0.72rem;color:var(--muted);line-height:1.5;}
+
+  /* ── NIGHT PLAN ── */
+  .plan-setup{background:var(--white);border-radius:14px;padding:1.4rem;margin-bottom:1.1rem;border:1px solid rgba(196,133,106,0.16);}
+  .ai-output{background:var(--deep);border-radius:16px;padding:1.6rem;color:var(--cream);position:relative;overflow:hidden;}
+  .ai-output::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(196,133,106,0.13) 0%,transparent 70%);pointer-events:none;}
+  .ai-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.18em;color:var(--blush);margin-bottom:0.9rem;font-weight:500;display:flex;align-items:center;gap:0.45rem;}
+  .ai-label::before{content:'';display:inline-block;width:5px;height:5px;background:var(--blush);border-radius:50%;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+  .plan-venue-name{font-family:'Playfair Display',serif;font-size:1.45rem;margin-bottom:0.18rem;}
+  .plan-venue-sub{color:rgba(250,247,242,0.48);font-size:0.8rem;margin-bottom:1.15rem;}
+  .plan-section{margin-bottom:1rem;}
+  .plan-section-title{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--blush);margin-bottom:0.35rem;font-weight:500;}
+  .plan-section-text{font-size:0.85rem;line-height:1.7;color:rgba(250,247,242,0.88);}
+  .plan-tips{list-style:none;}
+  .plan-tips li{padding:0.32rem 0 0.32rem 1.1rem;position:relative;font-size:0.83rem;color:rgba(250,247,242,0.85);line-height:1.5;}
+  .plan-tips li::before{content:'→';position:absolute;left:0;color:var(--blush);font-size:0.76rem;}
+  .score-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-top:1.15rem;padding-top:1.15rem;border-top:1px solid rgba(250,247,242,0.1);}
+  .score-item{text-align:center;}
+  .score-num{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--blush);line-height:1;margin-bottom:0.18rem;}
+  .score-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(250,247,242,0.38);}
+  .loading-dots span{display:inline-block;animation:dots 1.4s infinite;font-size:1.1rem;color:var(--blush);}
+  .loading-dots span:nth-child(2){animation-delay:0.2s;}
+  .loading-dots span:nth-child(3){animation-delay:0.4s;}
+  @keyframes dots{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-7px);}}
+
+  .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--deep);color:var(--cream);padding:0.65rem 1.3rem;border-radius:100px;font-size:0.8rem;transition:transform 0.3s;z-index:999;white-space:nowrap;box-shadow:0 4px 20px rgba(42,31,26,0.25);}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  .spinner{width:18px;height:18px;border:2px solid rgba(196,133,106,0.3);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .empty-board{text-align:center;padding:3rem 1rem;color:var(--muted);}
+  .empty-board p{font-family:'Playfair Display',serif;font-size:1.05rem;font-style:italic;}
+</style>
+</head>
+<body>
+
+<!-- CONFIG GATE -->
+<div class="config-gate" id="configGate">
+  <div class="config-box">
+    <div class="config-logo">wing<span>woman</span> weekday</div>
+    <p class="config-sub">Paste your Supabase credentials below. This only happens once.</p>
+    <label class="config-label">Supabase Project URL</label>
+    <input class="config-input" id="cfgUrl" placeholder="https://xxxxxxxxxxxx.supabase.co" />
+    <label class="config-label">Supabase Anon Key</label>
+    <input class="config-input" id="cfgKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
+    <p class="config-note">Find both in your Supabase project under <strong>Settings → API</strong>. These are stored only in your browser.</p>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="saveConfig()">Connect and launch →</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header" id="appHeader" style="display:none;">
+  <div class="logo">wing<span>woman</span> weekday</div>
+  <div style="display:flex;align-items:center;gap:1.5rem;">
+    <div class="live-label"><div class="live-dot"></div>Live</div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('setup',this)">Setup</button>
+      <button class="nav-tab" onclick="showPage('board',this)">Board</button>
+      <button class="nav-tab" onclick="showPage('hotspots',this)">Hotspots</button>
+      <button class="nav-tab" onclick="showPage('planner',this)">Night Plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP PAGE -->
+<div id="page-setup" class="page">
+  <p class="section-label" id="stepLabel">Step 1 of 3</p>
+  <h1 class="hero-text">Set up your <em>wing rotation</em></h1>
+  <p class="subtitle">Pick up to 7 available nights, add 5 friends with their numbers. They each get a link, claim one night. Your board updates the moment they do.</p>
+
+  <div class="step-bar">
+    <div class="step-item"><div class="step-dot active" id="sdot1">1</div><div class="step-label active" id="slabel1">Your nights</div></div>
+    <div class="step-line"></div>
+    <div class="step-item"><div class="step-dot" id="sdot2">2</div><div class="step-label" id="slabel2">Add friends</div></div>
+    <div class="step-line"></div>
+    <div class="step-item"><div class="step-dot" id="sdot3">3</div><div class="step-label" id="slabel3">Send links</div></div>
+  </div>
+
+  <div class="setup-panel active" id="spanel1">
+    <div class="card">
+      <p class="section-label">Pick up to 7 nights you're free</p>
+      <div class="date-counter">Selected: <strong id="dateCount">0</strong> / 7</div>
+      <div class="date-picker-grid" id="datePickerGrid"></div>
+      <button class="btn btn-primary" id="btnStep2" onclick="goToStep(2)" disabled>Continue →</button>
+    </div>
+  </div>
+
+  <div class="setup-panel" id="spanel2">
+    <div class="card">
+      <p class="section-label">Add up to 5 wing women</p>
+      <div class="info-banner">Each friend gets a unique link showing only <strong>unclaimed dates</strong>. Once someone takes a night, it's gone from everyone else's view. You'll see every claim hit your board in real time.</div>
+      <div id="friendInputs"></div>
+      <button class="btn btn-ghost" id="btnAddFriend" onclick="addFriendRow()" style="margin-bottom:1rem;font-size:0.72rem;">+ Add another friend</button><br>
+      <div style="display:flex;gap:0.7rem;align-items:center;">
+        <button class="btn btn-ghost" onclick="goToStep(1)">← Back</button>
+        <button class="btn btn-primary" onclick="saveAndNext()" id="btnSaveNext">Save and generate links →</button>
+        <span id="saveSpinner" style="display:none;"><div class="spinner"></div></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="setup-panel" id="spanel3">
+    <div class="card">
+      <p class="section-label">Links ready to send</p>
+      <div class="info-banner"><strong>How it works:</strong> Each friend gets a unique link. Their page shows only the unclaimed nights. First to tap claims it. Your board updates instantly.</div>
+      <div id="inviteList"></div>
+      <div style="margin-top:1.1rem;display:flex;gap:0.7rem;">
+        <button class="btn btn-ghost" onclick="goToStep(2)">← Edit</button>
+        <button class="btn btn-primary" onclick="showPage('board',document.querySelectorAll('.nav-tab')[1])">Watch the board →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOARD PAGE -->
+<div id="page-board" class="page">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem;gap:1rem;">
+    <div>
+      <p class="section-label">Live</p>
+      <h1 class="hero-text">Who's got <em>your nights</em></h1>
+    </div>
+    <button class="btn btn-ghost" onclick="showPage('setup',document.querySelectorAll('.nav-tab')[0])">Edit setup</button>
+  </div>
+  <div id="boardProgress"></div>
+  <div class="board-grid" id="boardSlots"></div>
+</div>
+
+<!-- HOTSPOTS PAGE -->
+<div id="page-hotspots" class="page">
+  <p class="section-label">San Diego</p>
+  <h1 class="hero-text">Ranked <em>hotspot guide</em></h1>
+  <p class="subtitle">Curated across Little Italy, Downtown, PB, North Park, La Jolla, and Del Mar.</p>
+  <div class="filter-row" id="filterRow"></div>
+  <div class="hotspot-grid" id="hotspotGrid"></div>
+</div>
+
+<!-- NIGHT PLAN PAGE -->
+<div id="page-planner" class="page">
+  <p class="section-label">AI-powered</p>
+  <h1 class="hero-text">Tonight's <em>game plan</em></h1>
+  <p class="subtitle">Pick your vibe and get a full night itinerary with tactics built in.</p>
+  <div class="plan-setup">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Day</label><select class="form-select" id="planDay"><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option selected>Friday</option></select></div>
+      <div class="form-group"><label class="form-label">Vibe tonight</label><select class="form-select" id="planVibe"><option>After-work happy hour</option><option>Casual-cool night out</option><option>High energy, meet people</option><option>Low-key, good convos</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Neighborhood</label><select class="form-select" id="planHood"><option>Anywhere</option><option>Little Italy</option><option>Downtown / Gaslamp</option><option>Pacific Beach</option><option>North Park</option><option>La Jolla</option><option>Del Mar</option></select></div>
+      <div class="form-group"><label class="form-label">Group size</label><select class="form-select" id="planSize"><option>Just me + 1 wing woman</option><option>Small group (3-4)</option><option>Bigger crew (5+)</option></select></div>
+    </div>
+    <button class="btn btn-ai" onclick="generatePlan()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>Generate my night plan</button>
+  </div>
+  <div id="planOutput" style="display:none;"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── SUPABASE ──────────────────────────────────────────────────────
+let sb = null;
+let SESSION_ID = localStorage.getItem('ww_session_id') || null;
+
+const HOTSPOTS = [
+  {name:"Kettner Exchange",hood:"Little Italy",tier:"tier-a",score:94,vibes:["after-work","cocktail bar"],crowd:["finance","tech"],bestTime:"6–9pm",mf:"55/45",energy:"high",note:"Best after-work bar in SD. Office crowd pours in by 6:30. Bar seating is gold."},
+  {name:"Born and Raised",hood:"Little Italy",tier:"tier-a",score:91,vibes:["upscale","steakhouse bar"],crowd:["finance","professionals"],bestTime:"7–10pm",mf:"60/40",energy:"medium-high",note:"Sophisticated crowd. The menu is a natural convo starter. Dress up."},
+  {name:"Ironside Fish & Oyster",hood:"Little Italy",tier:"tier-b",score:84,vibes:["oyster bar","nautical"],crowd:["foodies","professionals"],bestTime:"6–9pm",mf:"54/46",energy:"medium",note:"Bar-only seating is social by design. Oysters start conversations."},
+  {name:"Waterfront Bar & Grill",hood:"Little Italy",tier:"tier-b",score:78,vibes:["dive-ish","casual"],crowd:["locals","mixed"],bestTime:"5–8pm",mf:"65/35",energy:"medium",note:"Unpretentious, male-skewed, easy to talk to strangers. Low pressure."},
+  {name:"The Nolen",hood:"Downtown",tier:"tier-a",score:89,vibes:["rooftop","cocktails"],crowd:["professionals","mixed"],bestTime:"7–11pm",mf:"52/48",energy:"high",note:"Rooftop rail is a built-in convo opener. Arrive before 8 to get the right spot."},
+  {name:"The Grant Grill",hood:"Downtown",tier:"tier-a",score:86,vibes:["hotel bar","classic"],crowd:["business travelers","professionals"],bestTime:"6–9pm",mf:"62/38",energy:"medium",note:"Business travelers and downtown workers. Male-skewed, old school cool."},
+  {name:"Noble Experiment",hood:"Gaslamp",tier:"tier-b",score:82,vibes:["speakeasy","cocktail"],crowd:["cocktail nerds","professionals"],bestTime:"8–11pm",mf:"55/45",energy:"medium",note:"Hidden door entrance is an instant ice breaker. Intimate, convo-first space."},
+  {name:"Mavericks Beach Club",hood:"Pacific Beach",tier:"tier-b",score:78,vibes:["beach club","DJ"],crowd:["young professionals","active"],bestTime:"4–8pm",mf:"50/50",energy:"very high",note:"High volume. Best Thursday or Friday for the after-work beach crowd."},
+  {name:"Pacific Beach Shore Club",hood:"Pacific Beach",tier:"tier-b",score:74,vibes:["rooftop","beach"],crowd:["young mixed"],bestTime:"5–9pm",mf:"50/50",energy:"high",note:"Younger vibe, high volume, low commitment. Good warm-up spot."},
+  {name:"Polite Provisions",hood:"North Park",tier:"tier-a",score:90,vibes:["craft cocktail","apothecary"],crowd:["creatives","tech"],bestTime:"7–10pm",mf:"53/47",energy:"medium-high",note:"Most interesting bar in SD. The menu starts every conversation. Creative, smart crowd."},
+  {name:"Tiger!Tiger!",hood:"North Park",tier:"tier-b",score:80,vibes:["craft beer","outdoor"],crowd:["neighborhood locals","young professionals"],bestTime:"6–9pm",mf:"56/44",energy:"medium",note:"Massive outdoor patio makes it easy to circulate. Low-pressure and social."},
+  {name:"The Casbah",hood:"North Park",tier:"tier-b",score:76,vibes:["live music","indie bar"],crowd:["musicians","creatives"],bestTime:"8–11pm",mf:"58/42",energy:"high",note:"Live music nights perfect for shoulder-to-shoulder proximity. Check their calendar."},
+  {name:"Gravity Heights",hood:"North Park",tier:"tier-b",score:77,vibes:["brewery","modern pub"],crowd:["tech","young professionals"],bestTime:"6–9pm",mf:"57/43",energy:"medium",note:"Communal tables, tech and startup crowd on weeknights."},
+  {name:"George's at the Cove",hood:"La Jolla",tier:"tier-a",score:92,vibes:["ocean view","upscale"],crowd:["professionals","40s crowd"],bestTime:"6–9pm",mf:"54/46",energy:"medium-high",note:"SD's most scenic rooftop bar. Upscale but not stuffy. Strong Wed and Thu after-work crowd."},
+  {name:"The Whaling Bar",hood:"La Jolla",tier:"tier-a",score:85,vibes:["classic bar","literary history"],crowd:["locals","older professionals"],bestTime:"6–9pm",mf:"62/38",energy:"medium",note:"Historic La Jolla institution. Cultured, conversation-heavy. Very male-skewed."},
+  {name:"Herringbone La Jolla",hood:"La Jolla",tier:"tier-b",score:81,vibes:["restaurant bar","coastal upscale"],crowd:["well-dressed mixed"],bestTime:"7–10pm",mf:"52/48",energy:"medium-high",note:"Beautiful space, beautiful crowd. Bar area fills quickly. Dress for it."},
+  {name:"Lodge Torrey Pines Bar",hood:"La Jolla",tier:"tier-b",score:79,vibes:["hotel bar","golf adjacent"],crowd:["business travelers","40s+ professionals"],bestTime:"5–8pm",mf:"65/35",energy:"low-medium",note:"Heavy male skew from the Torrey Pines golf and conference crowd."},
+  {name:"Viewpoint Brewing",hood:"Del Mar",tier:"tier-a",score:87,vibes:["rooftop brewery","coastal"],crowd:["active professionals","surfers"],bestTime:"4–8pm",mf:"56/44",energy:"medium-high",note:"Best rooftop views north of the city. Active, outdoorsy crowd. Sunset happy hour is the move."},
+  {name:"Il Posto Ristorante",hood:"Del Mar",tier:"tier-b",score:80,vibes:["Italian","restaurant bar"],crowd:["Del Mar regulars","40s professionals"],bestTime:"7–9pm",mf:"54/46",energy:"medium",note:"Village Del Mar regular crowd. Upscale without being pretentious."},
+  {name:"Poseidon Restaurant",hood:"Del Mar",tier:"tier-b",score:76,vibes:["beach bar","seafood"],crowd:["beachgoers","professionals"],bestTime:"5–8pm",mf:"53/47",energy:"medium-high",note:"Direct beach access. Great transition from afternoon to evening."},
+];
+
+const NEIGHBORHOODS = ['All','Little Italy','Downtown','Gaslamp','Pacific Beach','North Park','La Jolla','Del Mar','Top Rated'];
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// ── CONFIG ────────────────────────────────────────────────────────
+function saveConfig() {
+  const url = document.getElementById('cfgUrl').value.trim();
+  const key = document.getElementById('cfgKey').value.trim();
+  if (!url || !key) { alert('Both fields required'); return; }
+  localStorage.setItem('ww_sb_url', url);
+  localStorage.setItem('ww_sb_key', key);
+  initApp(url, key);
+}
+
+function initApp(url, key) {
+  sb = supabase.createClient(url, key);
+  document.getElementById('configGate').style.display = 'none';
+  document.getElementById('appHeader').style.display = 'flex';
+  document.querySelectorAll('.page')[0].classList.add('active');
+  buildDatePicker();
+  buildFriendInputs();
+  subscribeToBoard();
+  if (SESSION_ID) {
+    showPage('board', document.querySelectorAll('.nav-tab')[1]);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const url = localStorage.getItem('ww_sb_url');
+  const key = localStorage.getItem('ww_sb_key');
+  if (url && key) initApp(url, key);
+});
+
+// ── REAL-TIME SUBSCRIPTION ────────────────────────────────────────
+function subscribeToBoard() {
+  if (!sb || !SESSION_ID) return;
+  sb.channel('ww-claims-' + SESSION_ID)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ww_claims', filter: `session_id=eq.${SESSION_ID}` },
+      payload => {
+        showToast(`${payload.new.friend_name} just claimed a night!`);
+        renderBoard();
+      }
+    ).subscribe();
+}
+
+// ── NAV ───────────────────────────────────────────────────────────
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  if (id === 'hotspots') { renderFilters(); renderHotspots('All'); }
+  if (id === 'board') renderBoard();
+}
+
+// ── STEP MACHINE ─────────────────────────────────────────────────
+let selectedDates = [];
+function goToStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('spanel'+i).classList.remove('active');
+    const dot = document.getElementById('sdot'+i);
+    dot.classList.remove('active','done'); dot.textContent = i;
+    document.getElementById('slabel'+i).classList.remove('active');
+  });
+  for (let i=1;i<n;i++) { const d=document.getElementById('sdot'+i); d.classList.add('done'); d.textContent='✓'; }
+  document.getElementById('sdot'+n).classList.add('active');
+  document.getElementById('slabel'+n).classList.add('active');
+  document.getElementById('spanel'+n).classList.add('active');
+  document.getElementById('stepLabel').textContent = `Step ${n} of 3`;
+}
+
+// ── DATE PICKER ───────────────────────────────────────────────────
+function buildDatePicker() {
+  const grid = document.getElementById('datePickerGrid');
+  const today = new Date(); today.setHours(0,0,0,0);
+  grid.innerHTML = '';
+  for (let i=0;i<21;i++) {
+    const d = new Date(today); d.setDate(today.getDate()+i);
+    const iso = d.toISOString().split('T')[0];
+    const cell = document.createElement('div');
+    cell.className = 'date-cell';
+    cell.dataset.iso = iso;
+    cell.innerHTML = `<div class="dc-day">${DAYS[d.getDay()]}</div><div class="dc-num">${d.getDate()}</div><div class="dc-mon">${MONTHS[d.getMonth()]}</div>`;
+    cell.onclick = () => toggleDate(iso, cell);
+    grid.appendChild(cell);
+  }
+}
+
+function toggleDate(iso, cell) {
+  const idx = selectedDates.indexOf(iso);
+  if (idx>-1) { selectedDates.splice(idx,1); cell.classList.remove('selected'); }
+  else {
+    if (selectedDates.length>=7) { showToast('Max 7 dates'); return; }
+    selectedDates.push(iso); selectedDates.sort(); cell.classList.add('selected');
+  }
+  document.getElementById('dateCount').textContent = selectedDates.length;
+  document.getElementById('btnStep2').disabled = selectedDates.length < 1;
+}
+
+// ── FRIENDS ───────────────────────────────────────────────────────
+let fCount = 0;
+function buildFriendInputs() {
+  document.getElementById('friendInputs').innerHTML = '';
+  fCount = 0;
+  addFriendRow();
+}
+
+function addFriendRow() {
+  if (fCount>=5) { showToast('Max 5 friends'); return; }
+  fCount++;
+  const c = document.getElementById('friendInputs');
+  const row = document.createElement('div');
+  row.className = 'friend-row';
+  row.innerHTML = `
+    <div class="friend-num">${fCount}</div>
+    <input class="form-input" style="flex:1;" placeholder="Name" id="fn${fCount}">
+    <input class="form-input" style="width:140px;" placeholder="Phone (optional)" id="fp${fCount}">
+    ${fCount>1?`<button class="btn btn-ghost btn-sm" onclick="removeFriendRow(this)">×</button>`:''}
+  `;
+  c.appendChild(row);
+  if (fCount>=5) document.getElementById('btnAddFriend').style.display='none';
+}
+
+function removeFriendRow(btn) {
+  btn.closest('.friend-row').remove();
+  fCount--;
+  document.getElementById('btnAddFriend').style.display='';
+  document.querySelectorAll('.friend-row .friend-num').forEach((el,i)=>el.textContent=i+1);
+}
+
+function getFriends() {
+  const rows = document.querySelectorAll('.friend-row');
+  return Array.from(rows).map(row => ({
+    name: row.querySelector('input:nth-of-type(1)').value.trim(),
+    phone: row.querySelector('input:nth-of-type(2)').value.trim()
+  })).filter(f=>f.name);
+}
+
+// ── SAVE TO SUPABASE ──────────────────────────────────────────────
+async function saveAndNext() {
+  const friends = getFriends();
+  if (!friends.length) { showToast('Add at least one friend'); return; }
+
+  document.getElementById('btnSaveNext').style.display='none';
+  document.getElementById('saveSpinner').style.display='inline-block';
+
+  try {
+    // Create or reuse session
+    let sessionId = SESSION_ID;
+    if (!sessionId) {
+      const { data, error } = await sb.from('ww_sessions').insert({ host_name: 'host' }).select().single();
+      if (error) throw error;
+      sessionId = data.id;
+      SESSION_ID = sessionId;
+      localStorage.setItem('ww_session_id', sessionId);
+    } else {
+      // Clear old data for this session to start fresh
+      await sb.from('ww_dates').delete().eq('session_id', sessionId);
+      await sb.from('ww_friends').delete().eq('session_id', sessionId);
+      await sb.from('ww_claims').delete().eq('session_id', sessionId);
+    }
+
+    // Save dates
+    const dateRows = selectedDates.map(d => ({ session_id: sessionId, date_iso: d }));
+    await sb.from('ww_dates').insert(dateRows);
+
+    // Save friends
+    const friendRows = friends.map(f => ({ session_id: sessionId, name: f.name, phone: f.phone || null }));
+    const { data: savedFriends } = await sb.from('ww_friends').insert(friendRows).select();
+
+    // Subscribe now that we have a session
+    subscribeToBoard();
+
+    // Build invite list
+    buildInviteList(savedFriends, sessionId);
+    goToStep(3);
+  } catch(e) {
+    console.error(e);
+    showToast('Error saving. Check your Supabase credentials.');
+  }
+
+  document.getElementById('btnSaveNext').style.display='inline-flex';
+  document.getElementById('saveSpinner').style.display='none';
+}
+
+// ── INVITE LIST ───────────────────────────────────────────────────
+function buildInviteList(friends, sessionId) {
+  const baseUrl = window.location.href.replace('index.html','').replace(/\/$/, '');
+  const list = document.getElementById('inviteList');
+  list.innerHTML = friends.map(f => {
+    const initials = f.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const link = `${baseUrl}/claim.html?token=${f.claim_token}`;
+    const smsBody = encodeURIComponent(`Hey ${f.name}! Pick a night to be my wing woman this month. Tap to claim your date: ${link}`);
+    const smsHref = f.phone ? `sms:${f.phone}?body=${smsBody}` : `sms:?body=${smsBody}`;
+    return `<div class="invite-card">
+      <div class="invite-avatar">${initials}</div>
+      <div class="invite-info">
+        <div class="invite-name">${f.name}</div>
+        <div class="invite-sub">${f.phone || 'No number added'}</div>
+      </div>
+      <div class="invite-actions">
+        <button class="btn btn-copy btn-sm" onclick="copyLink('${link}', this)">Copy link</button>
+        <a href="${smsHref}" class="btn btn-primary btn-sm" style="text-decoration:none;">Send text</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function copyLink(link, btn) {
+  navigator.clipboard.writeText(link).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy link', 2000);
+  });
+}
+
+// ── BOARD ─────────────────────────────────────────────────────────
+async function renderBoard() {
+  const slotsEl = document.getElementById('boardSlots');
+  const progEl = document.getElementById('boardProgress');
+  if (!SESSION_ID || !sb) {
+    slotsEl.innerHTML = '<div class="empty-board"><p>Set up your rotation first.</p></div>';
+    progEl.innerHTML = ''; return;
+  }
+
+  const [{ data: dates }, { data: claims }] = await Promise.all([
+    sb.from('ww_dates').select('date_iso').eq('session_id', SESSION_ID).order('date_iso'),
+    sb.from('ww_claims').select('date_iso, friend_name, created_at').eq('session_id', SESSION_ID)
+  ]);
+
+  if (!dates?.length) {
+    slotsEl.innerHTML = '<div class="empty-board"><p>No dates set up yet. Head to Setup.</p></div>';
+    progEl.innerHTML = ''; return;
+  }
+
+  const claimMap = {};
+  (claims||[]).forEach(c => claimMap[c.date_iso] = c);
+  const total = dates.length;
+  const filled = (claims||[]).length;
+  const cap = Math.min(5, total);
+
+  progEl.innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;">
+      <span style="font-size:0.76rem;color:var(--muted);">${filled} of ${cap} nights claimed</span>
+      <span style="font-size:0.76rem;color:var(--accent);font-weight:500;">${total-filled} still open</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" style="width:${cap?Math.round((filled/cap)*100):0}%"></div></div>
+  `;
+
+  slotsEl.innerHTML = dates.map(({ date_iso }) => {
+    const claim = claimMap[date_iso];
+    const d = new Date(date_iso+'T12:00:00');
+    const claimedAt = claim ? new Date(claim.created_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : null;
+    return `<div class="date-slot ${claim?'claimed':''}" id="slot-${date_iso}">
+      <div class="slot-date-box"><div class="sdb-day">${DAYS[d.getDay()]}</div><div class="sdb-num">${d.getDate()}</div><div class="sdb-mon">${MONTHS[d.getMonth()]}</div></div>
+      <div class="slot-info">
+        ${claim
+          ? `<div class="slot-name">${claim.friend_name}</div><div class="slot-note">Claimed at ${claimedAt}</div>`
+          : `<div class="slot-open">Waiting for someone to claim</div>`}
+      </div>
+      <span class="slot-badge ${claim?'claimed-badge':'open-badge'}">${claim?'Claimed':'Open'}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── HOTSPOTS ──────────────────────────────────────────────────────
+function renderFilters() {
+  document.getElementById('filterRow').innerHTML = NEIGHBORHOODS.map(n =>
+    `<button class="filter-pill${n==='All'?' active':''}" onclick="filterClick('${n}',this)">${n}</button>`
+  ).join('');
+}
+function filterClick(f,el) { document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active')); el.classList.add('active'); renderHotspots(f); }
+function renderHotspots(filter) {
+  let spots=[...HOTSPOTS];
+  if(filter==='Top Rated') spots=spots.filter(h=>h.tier==='tier-a');
+  else if(filter!=='All') spots=spots.filter(h=>h.hood===filter);
+  spots.sort((a,b)=>b.score-a.score);
+  document.getElementById('hotspotGrid').innerHTML=spots.map(s=>`
+    <div class="hotspot-card ${s.tier}">
+      <div class="hotspot-header"><div class="hotspot-name">${s.name}</div><div class="hotspot-score">${s.score}</div></div>
+      <div class="hotspot-hood">${s.hood}</div>
+      <div class="hotspot-tags">${s.vibes.map(v=>`<span class="tag tag-vibe">${v}</span>`).join('')}${s.crowd.slice(0,1).map(c=>`<span class="tag tag-crowd">${c}</span>`).join('')}<span class="tag tag-time">${s.bestTime}</span></div>
+      <div class="hotspot-stats"><div class="stat-item"><strong>M/F:</strong> ${s.mf}</div><div class="stat-item"><strong>Energy:</strong> ${s.energy}</div></div>
+      <p class="hotspot-note">${s.note}</p>
+    </div>`).join('');
+}
+
+// ── NIGHT PLAN ────────────────────────────────────────────────────
+async function generatePlan() {
+  const day=document.getElementById('planDay').value, vibe=document.getElementById('planVibe').value;
+  const hood=document.getElementById('planHood').value, size=document.getElementById('planSize').value;
+  const out=document.getElementById('planOutput');
+  out.style.display='block';
+  out.innerHTML=`<div class="ai-output"><div class="ai-label">Generating your plan</div><div style="padding:1rem 0;"><div class="loading-dots"><span>.</span><span>.</span><span>.</span></div></div></div>`;
+  let spots=[...HOTSPOTS];
+  if(hood!=='Anywhere'){if(hood==='Downtown / Gaslamp')spots=spots.filter(h=>h.hood==='Downtown'||h.hood==='Gaslamp');else spots=spots.filter(h=>h.hood===hood);}
+  if(!spots.length)spots=[...HOTSPOTS];
+  spots.sort((a,b)=>b.score-a.score);spots=spots.slice(0,6);
+  const prompt=`You are a sharp San Diego social strategist and wing woman advisor. A woman is going out ${day} night. Vibe: "${vibe}". Area: ${hood}. Group: ${size}.\n\nTop venue options:\n${spots.map(s=>`- ${s.name} (${s.hood}): Score ${s.score}, Best time ${s.bestTime}, M/F ${s.mf}, Energy: ${s.energy}. ${s.note}`).join('\n')}\n\nGive a concise, confident game plan: venue pick with reasoning, arrival time, where to position, 3 tactical tips, and a backup venue. Direct and warm, like advice from a smart friend.\n\nRespond ONLY in this JSON format:\n{"venue":"name","hood":"neighborhood","why":"1-2 sentences","arrival":"time","position":"where + why","tips":["tip1","tip2","tip3"],"backup":"venue + one line why","wingwomanScore":85,"meetabilityScore":78,"vibeScore":88}`;
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const text=data.content.map(i=>i.text||'').join('');
+    renderPlan(JSON.parse(text.replace(/```json|```/g,'').trim()),day,size);
+  } catch(e) {
+    renderPlan({venue:"Polite Provisions",hood:"North Park",why:"Best cocktail program in the city draws a creative, curious crowd. The menu is a conversation piece on its own.",arrival:"7:30pm",position:"Sit at the bar facing the room. The bartenders are great connectors.",tips:["Order off the seasonal menu and ask for the bartender's pick.","North Park crowd is more conversational than Gaslamp. Come curious.","Patio fills up early. Start inside, migrate out around 9."],backup:"Tiger!Tiger! two blocks away, huge outdoor patio, very social.",wingwomanScore:88,meetabilityScore:82,vibeScore:90},day,size);
+  }
+}
+function renderPlan(p,day,size){
+  document.getElementById('planOutput').innerHTML=`<div class="ai-output"><div class="ai-label">Your wing woman plan</div><div class="plan-venue-name">${p.venue}</div><div class="plan-venue-sub">${p.hood} · ${day} night · ${size}</div><div class="plan-section"><div class="plan-section-title">Why tonight</div><div class="plan-section-text">${p.why}</div></div><div class="plan-section"><div class="plan-section-title">The move</div><div class="plan-section-text"><strong style="color:var(--blush)">Arrive:</strong> ${p.arrival}<br><strong style="color:var(--blush)">Position:</strong> ${p.position}</div></div><div class="plan-section"><div class="plan-section-title">Tactical tips</div><ul class="plan-tips">${p.tips.map(t=>`<li>${t}</li>`).join('')}</ul></div><div class="plan-section"><div class="plan-section-title">Backup</div><div class="plan-section-text">${p.backup}</div></div><div class="score-row"><div class="score-item"><div class="score-num">${p.wingwomanScore}</div><div class="score-label">Wingwoman score</div></div><div class="score-item"><div class="score-num">${p.meetabilityScore}</div><div class="score-label">Meetability</div></div><div class="score-item"><div class="score-num">${p.vibeScore}</div><div class="score-label">Vibe match</div></div></div></div>`;
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+</script>
+</body>
+</html>
