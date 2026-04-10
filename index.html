@@ -761,7 +761,7 @@ async function generatePlan() {
   spots.sort((a,b)=>b.score-a.score);spots=spots.slice(0,6);
   const prompt=`You are a sharp San Diego social strategist and wing woman advisor. A woman is going out ${day} night. Vibe: "${vibe}". Area: ${hood}. Group: ${size}.\n\nTop venue options:\n${spots.map(s=>`- ${s.name} (${s.hood}): Score ${s.score}, Best time ${s.bestTime}, M/F ${s.mf}, Energy: ${s.energy}. ${s.note}`).join('\n')}\n\nGive a concise, confident game plan: venue pick with reasoning, arrival time, where to position, 3 tactical tips, and a backup venue. Direct and warm, like advice from a smart friend.\n\nRespond ONLY in this JSON format:\n{"venue":"name","hood":"neighborhood","why":"1-2 sentences","arrival":"time","position":"where + why","tips":["tip1","tip2","tip3"],"backup":"venue + one line why","wingwomanScore":85,"meetabilityScore":78,"vibeScore":88}`;
   try {
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
     const data=await res.json();
     const text=data.content.map(i=>i.text||'').join('');
     renderPlan(JSON.parse(text.replace(/```json|```/g,'').trim()),day,size);
