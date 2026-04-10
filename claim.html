@@ -279,8 +279,8 @@ const DAYS_S=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MONTHS_S=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-const SB_URL = 'https://sbzqpwdrelldbemgoagq.supabase.co';
-const SB_KEY = 'your-actual-anon-key-here';
+const SB_URL = localStorage.getItem('ww_sb_url') || 'YOUR_SUPABASE_URL';
+const SB_KEY = localStorage.getItem('ww_sb_key') || 'YOUR_SUPABASE_ANON_KEY';
 const sb = supabase.createClient(SB_URL, SB_KEY);
 
 const NEIGHBORHOODS = [
@@ -668,9 +668,9 @@ Respond ONLY in this JSON format:
 {"arrival":"time + tip","flow":"drinks → dinner → etc","tips":["tip1","tip2","tip3"],"mainCharacterMove":"one bold thing to do","vibeScore":88}`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/chat', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, messages:[{role:'user',content:prompt}] })
+      body: JSON.stringify({ prompt })
     });
     const data = await res.json();
     const text = data.content.map(i => i.text||'').join('');
