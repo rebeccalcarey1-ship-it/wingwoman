@@ -437,6 +437,7 @@ function showPage(id,el){
   if(el)el.classList.add('active');
   if(id==='hotspots'){renderFilters();renderHotspots('All');}
   if(id==='board')renderBoard();
+  if(id==='setup')buildDatePicker();
   if(id==='planner'){document.getElementById('planOutput').style.display='none';}
   window.scrollTo(0,0);
 }
