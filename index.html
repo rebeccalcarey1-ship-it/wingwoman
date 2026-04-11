@@ -462,12 +462,12 @@ function buildDatePicker(){
   if(!grid)return;
   const today=new Date();today.setHours(0,0,0,0);
   grid.innerHTML='';
- let weekdayCount=0;
-for(let i=0;weekdayCount<20;i++){
-  const d=new Date(today);d.setDate(today.getDate()+i);
-  const day=d.getDay();
-  if(day<2||day>5)continue;
-  weekdayCount++;
+  let count=0;
+  for(let i=1;count<20;i++){
+    const d=new Date(today);d.setDate(today.getDate()+i);
+    const day=d.getDay();
+    if(day<2||day>5)continue;
+    count++;
     const iso=d.toISOString().split('T')[0];
     const cell=document.createElement('div');
     cell.className='date-cell';
