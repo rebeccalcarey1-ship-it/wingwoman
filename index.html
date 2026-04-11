@@ -462,7 +462,7 @@ function buildDatePicker(){
   if(!grid)return;
   const today=new Date();today.setHours(0,0,0,0);
   grid.innerHTML='';
-  for(let i=0;i<60;i++){
+  for(let i=0;i<120;i++){
     const d=new Date(today);d.setDate(today.getDate()+i);
     const day=d.getDay();
     if(day<2||day>5)continue;
