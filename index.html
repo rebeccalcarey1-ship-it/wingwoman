@@ -459,13 +459,22 @@ function goToStep(n){
 
 function buildDatePicker(){
   const grid=document.getElementById('datePickerGrid');
+  if(!grid)return;
   const today=new Date();today.setHours(0,0,0,0);
   grid.innerHTML='';
-  for(let i=0;i<21;i++){
+  for(let i=0;i<60;i++){
     const d=new Date(today);d.setDate(today.getDate()+i);
+    const day=d.getDay();
+    if(day<2||day>5)continue;
     const iso=d.toISOString().split('T')[0];
     const cell=document.createElement('div');
     cell.className='date-cell';
+    cell.dataset.iso=iso;
+    cell.innerHTML=`<div class="dc-day">${DAYS[d.getDay()]}</div><div class="dc-num">${d.getDate()}</div><div class="dc-mon">${MONTHS[d.getMonth()]}</div>`;
+    cell.onclick=()=>toggleDate(iso,cell);
+    grid.appendChild(cell);
+  }
+}
     cell.dataset.iso=iso;
     cell.innerHTML=`<div class="dc-day">${DAYS[d.getDay()]}</div><div class="dc-num">${d.getDate()}</div><div class="dc-mon">${MONTHS[d.getMonth()]}</div>`;
     cell.onclick=()=>toggleDate(iso,cell);
