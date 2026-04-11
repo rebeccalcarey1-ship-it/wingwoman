@@ -258,7 +258,7 @@ async function sendMagicLink() {
   const redirectUrl = 'https://project-9c3zb.vercel.app/auth.html';
   const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectUrl } });
   if (error) {
-    alert('Something went wrong. Try again.');
+    alert(error.message);
     btn.innerHTML = 'Send my magic link →';
     btn.disabled = false;
     return;
