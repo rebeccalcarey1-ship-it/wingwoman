@@ -245,7 +245,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--deep);
   <div class="setup-panel active" id="spanel1">
     <div class="card">
       <p class="section-label">Pick up to 7 nights you're free</p>
-      <div class="date-counter">Selected: <strong id="dateCount">0</strong> / 7</div>
+      <div class="date-counter">Selected: <strong id="dateCount">0</strong> / 5</div>
       <div class="date-picker-grid" id="datePickerGrid"></div>
       <button class="btn btn-primary" id="btnStep2" onclick="goToStep(2)" disabled>Continue →</button>
     </div>
@@ -463,7 +463,7 @@ function buildDatePicker(){
   const today=new Date();today.setHours(0,0,0,0);
   grid.innerHTML='';
  let weekdayCount=0;
-for(let i=0;weekdayCount<35;i++){
+for(let i=0;weekdayCount<20;i++){
   const d=new Date(today);d.setDate(today.getDate()+i);
   const day=d.getDay();
   if(day<2||day>5)continue;
@@ -488,7 +488,7 @@ function toggleDate(iso,cell){
   const idx=selectedDates.indexOf(iso);
   if(idx>-1){selectedDates.splice(idx,1);cell.classList.remove('selected');}
   else{
-    if(selectedDates.length>=7){showToast('Max 7 dates');return;}
+    if(selectedDates.length>=7){showToast('Max 5 dates');return;}
     selectedDates.push(iso);selectedDates.sort();cell.classList.add('selected');
   }
   document.getElementById('dateCount').textContent=selectedDates.length;
@@ -499,14 +499,14 @@ let fCount=0;
 function buildFriendInputs(){document.getElementById('friendInputs').innerHTML='';fCount=0;addFriendRow();}
 
 function addFriendRow(){
-  if(fCount>=5){showToast('Max 5 friends');return;}
+  if(fCount>=3){showToast('Max 3 friends');return;}
   fCount++;
   const c=document.getElementById('friendInputs');
   const row=document.createElement('div');
   row.className='friend-row';
   row.innerHTML=`<div class="friend-num">${fCount}</div><input class="form-input" style="flex:1;" placeholder="Name" id="fn${fCount}"><input class="form-input" style="width:140px;" placeholder="Phone (optional)" id="fp${fCount}">${fCount>1?`<button class="btn btn-ghost btn-sm" onclick="removeFriendRow(this)">×</button>`:''}`;
   c.appendChild(row);
-  if(fCount>=5)document.getElementById('btnAddFriend').style.display='none';
+  if(fCount>=3)document.getElementById('btnAddFriend').style.display='none';
 }
 
 function removeFriendRow(btn){
