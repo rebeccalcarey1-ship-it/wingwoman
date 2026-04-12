@@ -441,7 +441,7 @@ function goPage(id,btnId){
   }
   if(btnId){const b=document.getElementById(btnId);if(b)b.classList.add('active');}
   if(id==='spots'){buildFilters();renderSpots('All');}
-  if(id==='board'||（id==='home'&&SESSION_ID))renderBoard();
+ if(id==='board'||(id==='home'&&SESSION_ID))renderBoard();
   if(id==='plan')document.getElementById('planOut').style.display='none';
   window.scrollTo(0,0);
 }
