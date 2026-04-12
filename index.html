@@ -462,16 +462,18 @@ function buildDatePicker(){
   if(!grid)return;
   const today=new Date();today.setHours(0,0,0,0);
   grid.innerHTML='';
+  const weekdays=[2,3,4,5];
   let count=0;
-  for(let i=1;count<20;i++){
-    const d=new Date(today);d.setDate(today.getDate()+i);
-    const day=d.getDay();
-    if(day<2||day>5)continue;
+  let i=1;
+  while(count<15){
+    const d=new Date(today);
+    d.setDate(today.getDate()+i);
+    i++;
+    if(!weekdays.includes(d.getDay()))continue;
     count++;
     const iso=d.toISOString().split('T')[0];
     const cell=document.createElement('div');
     cell.className='date-cell';
-    cell.dataset.iso=iso;
     cell.innerHTML=`<div class="dc-day">${DAYS[d.getDay()]}</div><div class="dc-num">${d.getDate()}</div><div class="dc-mon">${MONTHS[d.getMonth()]}</div>`;
     cell.onclick=()=>toggleDate(iso,cell);
     grid.appendChild(cell);
