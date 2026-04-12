@@ -413,13 +413,9 @@ async function loadHomeStats(){
 }
 
 window.addEventListener('DOMContentLoaded',()=>{
-  const url=localStorage.getItem('ww_sb_url');
-  const key=localStorage.getItem('ww_sb_key');
-  if(url&&key)initApp(url,key);
-  else{
-    const base=window.location.href.replace('index.html','').replace(/\/$/,'');
-    window.location.href=base+'/auth.html';
-  }
+  const url='https://sbzqpwdrelldbemgoagq.supabase.co';
+  const key='YOUR_ANON_KEY_HERE';
+  initApp(url,key);
 });
 
 function subscribeToBoard(){
