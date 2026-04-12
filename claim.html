@@ -2,696 +2,480 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Wing Woman Weekday — Your Mission</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root {
-    --cream:#FAF7F2; --blush:#E8C4B8; --dusty-rose:#C4856A;
-    --deep:#2A1F1A; --muted:#7A6A62; --soft:#F0E8E2;
-    --accent:#B5634A; --green:#5A7A5A; --gold:#C9A84C; --white:#FFFFFF;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--deep);min-height:100vh;}
+:root{--cream:#F7F2EC;--blush:#E8C4A0;--rose:#C4856A;--deep:#1A0A06;--muted:#7A6A62;--soft:#EDE6D8;--accent:#B5634A;--green:#5A7A5A;--gold:#C9A84C;--white:#fff;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--deep);min-height:100vh;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes dots{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+@keyframes shimmer{0%,100%{opacity:.5}50%{opacity:1}}
 
-  .top-bar{background:var(--deep);padding:1rem 1.5rem;display:flex;align-items:center;gap:0.75rem;}
-  .top-logo{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--cream);}
-  .top-logo span{color:var(--blush);font-style:italic;}
+.topbar{background:var(--deep);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:center;}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:300;color:var(--cream);font-style:italic;}
 
-  .hero{background:var(--deep);padding:2.25rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden;}
-  .hero::before{content:'';position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(232,196,184,0.08) 0%,transparent 70%);pointer-events:none;}
-  .hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:28px;background:var(--cream);border-radius:28px 28px 0 0;}
-  .hero-eyebrow{font-size:0.63rem;text-transform:uppercase;letter-spacing:0.2em;color:rgba(232,196,184,0.6);margin-bottom:0.6rem;font-weight:500;}
-  .hero-title{font-family:'Playfair Display',serif;font-size:1.9rem;color:var(--cream);line-height:1.2;margin-bottom:0.4rem;}
-  .hero-title em{color:var(--blush);}
-  .hero-sub{font-size:0.85rem;color:rgba(250,247,242,0.52);max-width:340px;margin:0 auto;line-height:1.65;}
+.hero{background:var(--deep);padding:2.25rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:28px;background:var(--cream);border-radius:28px 28px 0 0;}
+.hero-eye{font-size:.62rem;text-transform:uppercase;letter-spacing:.2em;color:rgba(232,196,160,.55);margin-bottom:.6rem;font-weight:500;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:1.9rem;color:var(--cream);line-height:1.2;margin-bottom:.4rem;font-weight:300;}
+.hero-title em{color:var(--blush);}
+.hero-sub{font-size:.84rem;color:rgba(247,242,236,.5);max-width:320px;margin:0 auto;line-height:1.65;}
 
-  .content{padding:1.5rem;max-width:520px;margin:0 auto;}
-  .section-label{font-size:0.64rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted);margin-bottom:0.8rem;font-weight:500;}
+.content{padding:1.5rem;max-width:520px;margin:0 auto;}
+.eyebrow{font-size:.64rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);margin-bottom:.8rem;font-weight:500;}
 
-  /* Steps indicator */
-  .steps-row{display:flex;align-items:center;gap:0;margin-bottom:1.75rem;}
-  .step-pip{width:24px;height:24px;border-radius:50%;border:1.5px solid rgba(196,133,106,0.3);display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:600;color:var(--muted);flex-shrink:0;transition:all 0.2s;}
-  .step-pip.active{background:var(--deep);border-color:var(--deep);color:var(--cream);}
-  .step-pip.done{background:var(--accent);border-color:var(--accent);color:white;}
-  .step-line-s{flex:1;height:1px;background:rgba(196,133,106,0.2);}
-  .step-text{font-size:0.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:0.3rem;text-align:center;}
+.view{display:none;}
+.view.on{display:block;animation:fadeUp .3s ease;}
 
-  .view{display:none;}
-  .view.active{display:block;}
+/* LOADING */
+.loading-view{text-align:center;padding:3rem 1rem;}
+.big-spin{width:36px;height:36px;border:3px solid rgba(196,133,106,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem;}
+.loading-view p{font-family:'Cormorant Garamond',serif;font-size:.95rem;font-style:italic;color:var(--muted);}
 
-  /* Date options */
-  .date-list{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.5rem;}
-  .date-option{background:var(--white);border-radius:12px;padding:0.9rem 1.1rem;border:2px solid rgba(196,133,106,0.15);display:flex;align-items:center;gap:0.9rem;cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
-  .date-option:hover{border-color:var(--blush);}
-  .date-option.selected{border-color:var(--accent);background:#FDF5F2;}
-  .date-option.taken{opacity:0.35;cursor:not-allowed;pointer-events:none;}
-  .date-box{background:var(--deep);color:var(--cream);border-radius:8px;padding:0.38rem 0.6rem;text-align:center;min-width:48px;flex-shrink:0;}
-  .db-day{font-size:0.54rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.5;}
-  .db-num{font-family:'Playfair Display',serif;font-size:1.1rem;line-height:1;}
-  .db-mon{font-size:0.53rem;opacity:0.5;}
-  .do-info{flex:1;}
-  .do-weekday{font-weight:500;font-size:0.88rem;}
-  .do-sub{font-size:0.72rem;color:var(--muted);margin-top:2px;}
-  .do-check{width:20px;height:20px;border-radius:50%;border:2px solid rgba(196,133,106,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;font-size:10px;}
-  .date-option.selected .do-check{background:var(--accent);border-color:var(--accent);color:white;}
+/* STEP PILLS */
+.step-pill{display:inline-flex;align-items:center;gap:.35rem;background:rgba(196,133,106,.1);border-radius:100px;padding:3px 10px;font-size:.7rem;color:var(--accent);font-weight:500;margin-bottom:1rem;}
 
-  /* Neighborhood cards */
-  .hood-grid{display:flex;flex-direction:column;gap:0.65rem;margin-bottom:1.5rem;}
-  .hood-card{background:var(--white);border-radius:14px;border:1.5px solid rgba(196,133,106,0.15);overflow:hidden;cursor:pointer;transition:all 0.2s;}
-  .hood-card.selected{border-color:var(--accent);}
-  .hood-card:hover{border-color:var(--blush);}
-  .hood-card-header{padding:1rem 1.1rem;display:flex;align-items:center;gap:0.75rem;}
-  .hood-select-circle{width:20px;height:20px;border-radius:50%;border:2px solid rgba(196,133,106,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all 0.2s;}
-  .hood-card.selected .hood-select-circle{background:var(--accent);border-color:var(--accent);color:white;}
-  .hood-card-main{flex:1;}
-  .hood-name{font-weight:500;font-size:0.9rem;}
-  .hood-teaser{font-size:0.74rem;color:var(--muted);margin-top:2px;line-height:1.4;}
-  .hood-expand-btn{font-size:0.68rem;color:var(--accent);padding:0 1.1rem 0.65rem;font-weight:500;display:flex;align-items:center;gap:0.3rem;}
-  .hood-intel{display:none;padding:0 1.1rem 1.1rem;}
-  .hood-intel.open{display:block;}
-  .hood-intel-inner{background:var(--soft);border-radius:10px;padding:0.85rem 1rem;}
-  .intel-row{margin-bottom:0.65rem;}
-  .intel-row:last-child{margin-bottom:0;}
-  .intel-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:500;margin-bottom:0.25rem;}
-  .intel-value{font-size:0.78rem;color:var(--deep);line-height:1.5;}
-  .intel-tag{display:inline-block;background:var(--white);border:1px solid rgba(196,133,106,0.2);border-radius:100px;padding:2px 8px;font-size:0.68rem;color:var(--muted);margin:2px 2px 0 0;}
-  .intel-highlight{font-size:0.78rem;color:var(--accent);font-weight:500;font-style:italic;margin-top:0.5rem;line-height:1.4;}
+/* DATE OPTIONS */
+.date-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.5rem;}
+.date-opt{background:var(--white);border-radius:12px;padding:.9rem 1.1rem;border:2px solid rgba(196,133,106,.15);display:flex;align-items:center;gap:.9rem;cursor:pointer;transition:all .2s;}
+.date-opt:active{transform:scale(.98);}
+.date-opt.on{border-color:var(--accent);background:#FDF5F2;}
+.date-opt.taken{opacity:.35;cursor:not-allowed;pointer-events:none;}
+.dbox{background:var(--deep);color:var(--cream);border-radius:8px;padding:.38rem .6rem;text-align:center;min-width:48px;flex-shrink:0;}
+.dbox-day{font-size:.54rem;text-transform:uppercase;letter-spacing:.1em;opacity:.5;}
+.dbox-num{font-family:'Cormorant Garamond',serif;font-size:1.1rem;line-height:1;}
+.dbox-mon{font-size:.53rem;opacity:.5;}
+.dopt-info{flex:1;}
+.dopt-wd{font-weight:500;font-size:.88rem;}
+.dopt-sub{font-size:.72rem;color:var(--muted);margin-top:2px;}
+.dopt-check{width:20px;height:20px;border-radius:50%;border:2px solid rgba(196,133,106,.3);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all .2s;}
+.date-opt.on .dopt-check{background:var(--accent);border-color:var(--accent);color:#fff;}
+.taken-pill{font-size:.65rem;background:rgba(196,133,106,.1);color:var(--muted);padding:2px 8px;border-radius:100px;}
 
-  /* Venue picks */
-  .venue-list{display:flex;flex-direction:column;gap:0.65rem;margin-bottom:1.25rem;}
-  .venue-card{background:var(--white);border-radius:14px;padding:1.1rem;border:2px solid rgba(196,133,106,0.15);cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
-  .venue-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--blush);}
-  .venue-card.gold::before{background:var(--gold);}
-  .venue-card.rose::before{background:var(--dusty-rose);}
-  .venue-card.selected{border-color:var(--accent);}
-  .venue-card:hover{border-color:var(--blush);}
-  .venue-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.4rem;}
-  .venue-card-name{font-family:'Playfair Display',serif;font-size:1rem;line-height:1.3;}
-  .venue-card-check{width:22px;height:22px;border-radius:50%;border:2px solid rgba(196,133,106,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all 0.2s;}
-  .venue-card.selected .venue-card-check{background:var(--accent);border-color:var(--accent);color:white;}
-  .venue-hood-tag{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;font-weight:500;}
-  .venue-why{font-size:0.78rem;color:var(--muted);line-height:1.5;margin-bottom:0.6rem;}
-  .venue-tags{display:flex;flex-wrap:wrap;gap:0.22rem;}
-  .vtag{padding:2px 7px;border-radius:100px;font-size:0.64rem;font-weight:500;}
-  .vtag-vibe{background:#F0E8E2;color:var(--dusty-rose);}
-  .vtag-crowd{background:#EAF0EA;color:var(--green);}
-  .vtag-time{background:#F5F0E8;color:var(--gold);}
+/* NEIGHBORHOOD CARDS */
+.hood-list{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.5rem;}
+.hcard{background:var(--white);border-radius:14px;border:1.5px solid rgba(196,133,106,.15);overflow:hidden;cursor:pointer;transition:all .2s;}
+.hcard.on{border-color:var(--accent);}
+.hcard-head{padding:1rem 1.1rem;display:flex;align-items:center;gap:.75rem;}
+.hcard-circle{width:20px;height:20px;border-radius:50%;border:2px solid rgba(196,133,106,.3);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all .2s;}
+.hcard.on .hcard-circle{background:var(--accent);border-color:var(--accent);color:#fff;}
+.hcard-main{flex:1;}
+.hcard-name{font-weight:500;font-size:.9rem;}
+.hcard-teaser{font-size:.74rem;color:var(--muted);margin-top:2px;line-height:1.4;}
+.hcard-expand{font-size:.68rem;color:var(--accent);padding:0 1.1rem .65rem;font-weight:500;}
+.hcard-intel{display:none;padding:0 1.1rem 1.1rem;}
+.hcard-intel.on{display:block;}
+.intel-inner{background:var(--soft);border-radius:10px;padding:.85rem 1rem;}
+.intel-row{margin-bottom:.65rem;}
+.intel-row:last-child{margin-bottom:0;}
+.intel-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:500;margin-bottom:.25rem;}
+.intel-val{font-size:.78rem;color:var(--deep);line-height:1.5;}
+.intel-tag{display:inline-block;background:var(--white);border:1px solid rgba(196,133,106,.2);border-radius:100px;padding:2px 8px;font-size:.68rem;color:var(--muted);margin:2px 2px 0 0;}
+.intel-hl{font-size:.78rem;color:var(--accent);font-weight:500;font-style:italic;margin-top:.5rem;line-height:1.4;}
 
-  /* Note input */
-  .note-box{background:var(--white);border-radius:14px;padding:1.1rem;border:1px solid rgba(196,133,106,0.15);margin-bottom:1.25rem;}
-  .note-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:500;margin-bottom:0.5rem;display:block;}
-  .note-input{width:100%;padding:0.6rem 0.8rem;border:1.5px solid rgba(196,133,106,0.25);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.86rem;background:var(--cream);color:var(--deep);outline:none;resize:none;min-height:80px;transition:border-color 0.2s;line-height:1.5;}
-  .note-input:focus{border-color:var(--dusty-rose);}
-  input.note-input{min-height:0;}
-  .note-nudge{font-size:0.72rem;color:var(--muted);margin-top:0.4rem;font-style:italic;line-height:1.4;}
+/* VENUE CARDS */
+.venue-list{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.25rem;}
+.vcard{background:var(--white);border-radius:14px;padding:1.1rem;border:2px solid rgba(196,133,106,.15);cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.vcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.vcard.gold::before{background:var(--gold);}
+.vcard.rose::before{background:var(--rose);}
+.vcard.on{border-color:var(--accent);}
+.vcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem;}
+.vcard-name{font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.3;}
+.vcard-check{width:22px;height:22px;border-radius:50%;border:2px solid rgba(196,133,106,.3);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all .2s;}
+.vcard.on .vcard-check{background:var(--accent);border-color:var(--accent);color:#fff;}
+.vcard-type{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;font-weight:500;}
+.vcard-why{font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:.6rem;}
+.vtags{display:flex;flex-wrap:wrap;gap:.22rem;}
+.vtag{padding:2px 7px;border-radius:100px;font-size:.64rem;font-weight:500;}
+.vtag-v{background:#F0E8E2;color:var(--rose);}
+.vtag-c{background:#EAF0EA;color:var(--green);}
+.vtag-t{background:#F5F0E8;color:var(--gold);}
 
-  /* Sticky confirm */
-  .confirm-bar{position:sticky;bottom:0;background:var(--cream);padding:0.85rem 0 1.25rem;border-top:1px solid rgba(196,133,106,0.12);}
-  .btn{width:100%;padding:0.7rem 1.5rem;border-radius:100px;border:none;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.45rem;}
-  .btn-primary{background:var(--deep);color:var(--cream);}
-  .btn-primary:hover{background:var(--accent);}
-  .btn-primary:disabled{opacity:0.38;cursor:not-allowed;}
-  .btn-ghost-s{background:transparent;color:var(--muted);border:none;font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;padding:0.5rem 0;text-align:center;width:100%;margin-top:0.5rem;}
-  .btn-ghost-s:hover{color:var(--deep);}
+/* NOTE */
+.note-box{background:var(--white);border-radius:14px;padding:1.1rem;border:1px solid rgba(196,133,106,.15);margin-bottom:1.25rem;}
+.note-lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:500;margin-bottom:.5rem;display:block;}
+.note-input{width:100%;padding:.6rem .8rem;border:1.5px solid rgba(196,133,106,.25);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.86rem;background:var(--cream);color:var(--deep);outline:none;resize:none;min-height:75px;transition:border-color .2s;line-height:1.5;}
+.note-input:focus{border-color:var(--rose);}
+.note-nudge{font-size:.72rem;color:var(--muted);margin-top:.4rem;font-style:italic;line-height:1.4;}
 
-  /* Loading */
-  .spinner{width:18px;height:18px;border:2px solid rgba(250,247,242,0.3);border-top-color:var(--cream);border-radius:50%;animation:spin 0.7s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .big-spinner{width:36px;height:36px;border:3px solid rgba(196,133,106,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto;}
-  .loading-view{text-align:center;padding:2.5rem 1rem;}
-  .loading-view p{font-family:'Playfair Display',serif;font-size:0.95rem;font-style:italic;color:var(--muted);margin-top:1rem;}
+/* STICKY BAR */
+.sticky-bar{position:sticky;bottom:0;background:var(--cream);padding:.85rem 0 1.25rem;border-top:1px solid rgba(196,133,106,.12);}
+.btn{width:100%;padding:.72rem 1.5rem;border-radius:100px;border:none;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.45rem;}
+.btn:active{transform:scale(.97);}
+.btn-dark{background:var(--deep);color:var(--cream);}
+.btn-dark:disabled{opacity:.35;cursor:not-allowed;}
+.btn-ghost-s{background:transparent;color:var(--muted);border:none;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;padding:.5rem 0;text-align:center;width:100%;margin-top:.5rem;}
 
-  /* Success */
-  .success-view{text-align:center;padding:2rem 0.5rem 3rem;}
-  .success-icon{width:68px;height:68px;background:#EFF7EF;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.1rem;font-size:1.7rem;}
-  .success-title{font-family:'Playfair Display',serif;font-size:1.55rem;margin-bottom:0.3rem;}
-  .success-title em{color:var(--dusty-rose);}
-  .success-date{font-size:0.9rem;color:var(--accent);font-weight:500;margin-bottom:0.3rem;}
-  .success-venue{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:0.75rem;}
-  .success-note{font-size:0.82rem;color:var(--muted);line-height:1.65;max-width:300px;margin:0 auto;}
+/* ALREADY CLAIMED */
+.already-box{background:var(--white);border-radius:14px;padding:1.5rem;border:1px solid rgba(196,133,106,.15);text-align:center;margin-top:.5rem;}
 
-  .info-pill{display:inline-flex;align-items:center;gap:0.35rem;background:rgba(196,133,106,0.1);border-radius:100px;padding:3px 10px;font-size:0.7rem;color:var(--accent);font-weight:500;margin-bottom:1rem;}
+/* SUCCESS */
+.success-view{text-align:center;padding:2rem .5rem 3rem;}
+.success-icon{font-size:2.5rem;margin-bottom:.75rem;}
+.success-title{font-family:'Cormorant Garamond',serif;font-size:1.55rem;margin-bottom:.3rem;}
+.success-title em{color:var(--rose);}
+.success-date{font-size:.9rem;color:var(--accent);font-weight:500;margin-bottom:.3rem;}
+.success-venue{font-family:'Cormorant Garamond',serif;font-size:1.05rem;margin-bottom:.75rem;}
+.success-note{font-size:.82rem;color:var(--muted);line-height:1.65;max-width:300px;margin:0 auto 1.5rem;}
 
-  .error-view{text-align:center;padding:3rem 1rem;color:var(--muted);}
-  .error-view p{font-family:'Playfair Display',serif;font-size:1rem;font-style:italic;}
+/* AI PLAN */
+.ai-box{background:var(--deep);border-radius:14px;padding:1.4rem;color:var(--cream);margin-top:1rem;}
+.ai-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:.18em;color:var(--blush);margin-bottom:.85rem;font-weight:500;display:flex;align-items:center;gap:.45rem;}
+.ai-lbl::before{content:'';display:inline-block;width:5px;height:5px;background:var(--blush);border-radius:50%;animation:shimmer 2s infinite;}
+.loading-dots span{display:inline-block;animation:dots 1.4s infinite;font-size:1rem;color:var(--blush);}
+.loading-dots span:nth-child(2){animation-delay:.2s;}
+.loading-dots span:nth-child(3){animation-delay:.4s;}
+.spinner{width:18px;height:18px;border:2px solid rgba(247,242,236,.3);border-top-color:var(--cream);border-radius:50%;animation:spin .7s linear infinite;}
 
-  .taken-pill{font-size:0.65rem;background:rgba(196,133,106,0.1);color:var(--muted);padding:2px 8px;border-radius:100px;font-weight:500;}
-
-  .ai-badge{display:inline-flex;align-items:center;gap:0.3rem;background:var(--deep);color:var(--blush);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.12em;padding:3px 9px;border-radius:100px;font-weight:500;margin-bottom:1rem;}
-  .ai-badge::before{content:'';width:5px;height:5px;background:var(--blush);border-radius:50%;animation:pulse 2s infinite;}
-  .ai-output{background:var(--deep);border-radius:14px;padding:1.4rem;color:var(--cream);}
-  .ai-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.18em;color:var(--blush);margin-bottom:0.85rem;font-weight:500;display:flex;align-items:center;gap:0.45rem;}
-  .ai-label::before{content:'';display:inline-block;width:5px;height:5px;background:var(--blush);border-radius:50%;animation:pulse 2s infinite;}
-  .loading-dots span{display:inline-block;animation:ldots 1.4s infinite;font-size:1rem;color:var(--blush);}
-  .loading-dots span:nth-child(2){animation-delay:0.2s;}
-  .loading-dots span:nth-child(3){animation-delay:0.4s;}
-  @keyframes ldots{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.error-view{text-align:center;padding:3rem 1rem;color:var(--muted);}
+.error-view p{font-family:'Cormorant Garamond',serif;font-size:1rem;font-style:italic;}
 </style>
 </head>
 <body>
 
-<div class="top-bar">
-  <div class="top-logo">wing<span>woman</span> weekday</div>
-</div>
+<div class="topbar"><div class="logo">wing woman weekday</div></div>
 
 <div class="hero">
-  <div class="hero-eyebrow">You've been recruited</div>
+  <div class="hero-eye">You've been recruited</div>
   <div class="hero-title">Your bestie is <em>the main character.</em></div>
-  <div class="hero-sub" id="heroSub">Loading your mission briefing...</div>
+  <div class="hero-sub" id="heroSub">Loading your mission...</div>
 </div>
 
 <div class="content">
 
-  <!-- Loading -->
-  <div class="view active" id="loadingView">
+  <div class="view on" id="loadView">
     <div class="loading-view">
-      <div class="big-spinner"></div>
+      <div class="big-spin"></div>
       <p>Pulling up your mission...</p>
     </div>
   </div>
 
-  <!-- Error -->
   <div class="view" id="errorView">
-    <div class="error-view"><p>This link doesn't look right, or it's expired.</p></div>
+    <div class="error-view"><p>This link doesn't look right or has expired.</p></div>
   </div>
 
-  <!-- Already claimed -->
   <div class="view" id="alreadyView">
-    <div style="background:var(--white);border-radius:14px;padding:1.5rem;border:1px solid rgba(196,133,106,0.15);text-align:center;margin-top:0.5rem;">
-      <div style="font-size:2rem;margin-bottom:0.75rem;">🗓️</div>
-      <div style="font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:0.3rem;" id="alreadyDate"></div>
-      <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">You're already locked in. She's counting on you.<br>Don't let the main character down.</div>
+    <div class="already-box">
+      <div style="font-size:2rem;margin-bottom:.75rem;">🗓️</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;margin-bottom:.3rem;" id="alreadyDate"></div>
+      <div style="font-size:.82rem;color:var(--muted);line-height:1.6;">You're already locked in. She's counting on you.</div>
     </div>
   </div>
 
-  <!-- STEP 1: Pick a date -->
   <div class="view" id="step1View">
-    <div class="info-pill">Step 1 of 3</div>
-    <p class="section-label">Pick your night</p>
+    <div class="step-pill">Step 1 of 3</div>
+    <p class="eyebrow">Pick your night</p>
     <div class="date-list" id="dateList"></div>
-    <div class="confirm-bar">
-      <button class="btn btn-primary" id="btnDateNext" onclick="goToStep2()" disabled>Choose your night →</button>
+    <div class="sticky-bar">
+      <button class="btn btn-dark" id="dateNextBtn" disabled>Choose your night →</button>
     </div>
   </div>
 
-  <!-- STEP 2: Pick a neighborhood -->
   <div class="view" id="step2View">
-    <div class="info-pill">Step 2 of 3</div>
-    <p class="section-label">Where should the night happen?</p>
-    <div class="hood-grid" id="hoodGrid"></div>
-    <div class="confirm-bar">
-      <button class="btn btn-primary" id="btnHoodNext" onclick="goToStep3()" disabled>Get venue picks →</button>
-      <button class="btn-ghost-s" onclick="goBack(1)">← Change date</button>
+    <div class="step-pill">Step 2 of 3</div>
+    <p class="eyebrow">Where should the night happen?</p>
+    <div class="hood-list" id="hoodList"></div>
+    <div class="sticky-bar">
+      <button class="btn btn-dark" id="hoodNextBtn" disabled>Get venue picks →</button>
+      <button class="btn-ghost-s" onclick="goStep(1)">← Change date</button>
     </div>
   </div>
 
-  <!-- STEP 3: AI venue picks + note -->
   <div class="view" id="step3View">
-    <div class="info-pill">Step 3 of 3</div>
-    <div class="ai-badge">AI picks</div>
-    <p class="section-label">Choose where you're taking her</p>
-    <div id="venueList" class="venue-list"></div>
+    <div class="step-pill">Step 3 of 3</div>
+    <p class="eyebrow">Choose where you're taking her</p>
+    <div class="venue-list" id="venueList"></div>
     <div class="note-box">
-      <label class="note-label">Add your plan idea</label>
-      <textarea class="note-input" id="noteInput" placeholder="e.g. Let's do dinner first then walk to a wine bar after, maybe end with karaoke?"></textarea>
-      <div class="note-nudge">Bonus points for adding a walk, a nightcap, or something spontaneous. The main character deserves the full experience.</div>
+      <label class="note-lbl">Add your plan idea</label>
+      <textarea class="note-input" id="noteInput" placeholder="e.g. Let's do dinner first then walk to a wine bar after..."></textarea>
+      <div class="note-nudge">Bonus points for adding a walk, a nightcap, or something spontaneous.</div>
     </div>
-    <div class="confirm-bar">
-      <button class="btn btn-primary" id="btnConfirm" onclick="confirmClaim()" disabled>Lock it in →</button>
-      <button class="btn-ghost-s" onclick="goBack(2)">← Change neighborhood</button>
+    <div class="sticky-bar">
+      <button class="btn btn-dark" id="confirmBtn" disabled>Lock it in →</button>
+      <button class="btn-ghost-s" onclick="goStep(2)">← Change neighborhood</button>
     </div>
   </div>
 
-  <!-- Success -->
   <div class="view" id="successView">
     <div class="success-view">
       <div class="success-icon">✨</div>
       <div class="success-title">You're <em>officially</em> her wing woman.</div>
       <div class="success-date" id="successDate"></div>
       <div class="success-venue" id="successVenue"></div>
-      <div class="success-note" style="margin-bottom:1.5rem;">She's been notified and your plan is locked. Time to start plotting the perfect night for the main character.</div>
-      <button class="btn btn-primary" style="max-width:280px;margin:0 auto;justify-content:center;" onclick="showPlannerFromSuccess()">✦ Now let's plan the night →</button>
+      <div class="success-note">She's been notified. Time to start plotting the perfect night.</div>
+      <button class="btn btn-dark" style="max-width:280px;margin:0 auto;" onclick="showPlanView()">✦ Now let's plan the night →</button>
     </div>
   </div>
 
-  <!-- Night Plan (accessible after claim) -->
-  <div class="view" id="plannerView">
-    <div style="margin-bottom:1.5rem;">
-      <p class="section-label">AI-powered</p>
-      <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.3rem;">Plan <em style="color:var(--dusty-rose);">the night</em></h2>
-      <p style="font-size:0.82rem;color:var(--muted);line-height:1.6;">Get a full itinerary for your wing woman night. Already pre-filtered to your neighborhood.</p>
-    </div>
-    <div style="background:var(--white);border-radius:14px;padding:1.25rem;border:1px solid rgba(196,133,106,0.15);margin-bottom:1.1rem;">
-      <div class="form-group" style="margin-bottom:0.75rem;">
-        <label class="note-label">Vibe tonight</label>
-        <select class="note-input" id="fpVibe" style="min-height:0;padding:0.55rem 0.8rem;resize:none;">
+  <div class="view" id="planView">
+    <p class="eyebrow" style="margin-bottom:.5rem;">AI-powered</p>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:.3rem;font-weight:300;">Plan <em style="color:var(--rose);">the night</em></h2>
+    <p style="font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:1.25rem;">Get a full itinerary for your wing woman night.</p>
+    <div style="background:var(--white);border-radius:14px;padding:1.25rem;border:1px solid rgba(196,133,106,.15);margin-bottom:1.1rem;">
+      <div style="margin-bottom:.75rem;">
+        <label class="note-lbl">Vibe tonight</label>
+        <select class="note-input" id="fpVibe" style="min-height:0;padding:.55rem .8rem;resize:none;">
           <option>After-work happy hour</option>
           <option>Casual-cool night out</option>
           <option selected>High energy, meet people</option>
           <option>Low-key, good convos</option>
         </select>
       </div>
-      <div class="form-group" style="margin-bottom:0;">
-        <label class="note-label">Group size</label>
-        <select class="note-input" id="fpSize" style="min-height:0;padding:0.55rem 0.8rem;resize:none;">
+      <div>
+        <label class="note-lbl">Group size</label>
+        <select class="note-input" id="fpSize" style="min-height:0;padding:.55rem .8rem;resize:none;">
           <option selected>Just me + the main character</option>
           <option>Small group (3-4)</option>
           <option>Bigger crew (5+)</option>
         </select>
       </div>
     </div>
-    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:0.75rem;" onclick="generateFriendPlan()">
+    <button class="btn btn-dark" onclick="genFriendPlan()" style="margin-bottom:.75rem;">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
       Generate my night plan
     </button>
-    <div id="fpOutput" style="display:none;"></div>
-    <button class="btn-ghost-s" onclick="showView('successView')" style="margin-top:0.5rem;">← Back</button>
+    <div id="fpOut"></div>
+    <button class="btn-ghost-s" onclick="showView('successView')" style="margin-top:.5rem;">← Back</button>
   </div>
 
 </div>
-
 <script>
-const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const DAYS_S=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const MONTHS_S=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const SB_URL='https://sbzqpwdrelldbemgoagq.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNienFwd2RyZWxsZGJlbWdvYWdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MDEwNTAsImV4cCI6MjA5MTI3NzA1MH0.A8THAW5PSWfgOXUzqVYy0mSYhIdiE1tVEv4PEJhE0po';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-const SB_URL = localStorage.getItem('ww_sb_url') || ''https://sbzqpwdrelldbemgoagq.supabase.co'';
-const SB_KEY = localStorage.getItem('ww_sb_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNienFwd2RyZWxsZGJlbWdvYWdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MDEwNTAsImV4cCI6MjA5MTI3NzA1MH0.A8THAW5PSWfgOXUzqVYy0mSYhIdiE1tVEv4PEJhE0po';
-const sb = supabase.createClient(SB_URL, SB_KEY);
+let token=null,friendData=null,selDate=null,selHood=null,selVenue=null;
 
-const NEIGHBORHOODS = [
-  {
-    id:'little_italy',
-    name:'Little Italy',
-    teaser:'The best after-work bar scene in SD. Finance and tech crowd flows in by 6:30.',
-    why:'Highest concentration of walkable upscale bars in the city. The after-work crowd here skews professional, ambitious, and social.',
-    offices:['Procore Technologies','Mitek Systems','Downtown financial district'],
-    industries:['Finance','SaaS','Startups','Legal'],
-    bestFor:'After-work drinks, cocktail bars, upscale dinner',
-    bestNights:'Tuesday through Thursday',
-    maleSkew:'High',
-    highlight:'If he works downtown, this is where he unwinds. The bar layouts force conversation.'
-  },
-  {
-    id:'downtown_gaslamp',
-    name:'Downtown / Gaslamp',
-    teaser:'Business travelers, finance, and the city\'s most male-skewed bar scene.',
-    why:'Core financial and civic district with 900+ businesses. Heavy business traveler presence midweek means a constant rotation of new faces.',
-    offices:['Classy','ESET North America','J. Craig Venter Institute','Government + civic orgs'],
-    industries:['Finance','Government','SaaS','Life Sciences'],
-    bestFor:'Hotel bars, speakeasies, upscale cocktail spots',
-    bestNights:'Wednesday and Thursday',
-    maleSkew:'Very high',
-    highlight:'Business travelers + downtown workers = two different pools of interesting men in one neighborhood.'
-  },
-  {
-    id:'la_jolla',
-    name:'La Jolla / UTC',
-    teaser:'San Diego\'s innovation corridor. Biotech money, tech execs, ocean views.',
-    why:'Home to Qualcomm HQ, Illumina, UC San Diego, and a massive biotech cluster. The people drinking here built things.',
-    offices:['Qualcomm','Illumina','ServiceNow','Pfizer','UC San Diego'],
-    industries:['Biotech','Enterprise tech','Research','Academia'],
-    bestFor:'Upscale restaurant bars, ocean view spots, rooftop drinks',
-    bestNights:'Thursday and Friday',
-    maleSkew:'High (skews 35-50, accomplished)',
-    highlight:'If you want smart, ambitious, and financially stable, this is the zip code.'
-  },
-  {
-    id:'del_mar',
-    name:'Del Mar / Carmel Valley',
-    teaser:'Coastal executives, finance, and wealth management. Low-key but high value.',
-    why:'LPL Financial HQ, Amazon corporate presence, Workday and Oracle regional offices. The exec crowd lives and works here.',
-    offices:['LPL Financial','Amazon (corporate)','Workday','Oracle'],
-    industries:['Finance','Wealth management','Enterprise tech','Professional services'],
-    bestFor:'Upscale restaurant bars, coastal spots, village wine bars',
-    bestNights:'Thursday and Friday',
-    maleSkew:'High (executive crowd)',
-    highlight:'These guys leave work at 6 and want a relaxed, quality experience. Not a bar-hopper crowd, but a let\'s-have-a-real-conversation crowd.'
-  },
-  {
-    id:'north_park',
-    name:'North Park',
-    teaser:'Creatives, tech workers, and the most interesting bar scene in the city.',
-    why:'Younger professional crowd, heavy in creative and tech industries. More conversational and less performative than downtown.',
-    offices:['Creative agencies','Startups','Remote tech workers'],
-    industries:['Creative','Tech','Design','Marketing'],
-    bestFor:'Craft cocktail bars, breweries, live music venues',
-    bestNights:'Wednesday through Saturday',
-    maleSkew:'Medium-high (younger, creative)',
-    highlight:'North Park guys are more likely to actually talk to you. The vibe is curious and social vs. see-and-be-seen.'
-  },
-  {
-    id:'point_loma',
-    name:'Point Loma / Liberty Station',
-    teaser:'Creative, defense-adjacent, and an underrated dinner scene with a local crowd.',
-    why:'Growing hub for creative agencies, defense contractors, and hospitality. Liberty Station draws a mixed, interesting crowd with strong local regulars.',
-    offices:['Creative agencies','Defense contractors','Hospitality businesses'],
-    industries:['Creative','Defense','Marketing','Hospitality'],
-    bestFor:'Restaurant bars, brewery taprooms, creative venues',
-    bestNights:'Thursday and Friday',
-    maleSkew:'Medium-high (mixed, interesting)',
-    highlight:'Less touristy than downtown, more interesting than PB. The Liberty Station crowd is local, employed, and not trying too hard.'
-  },
-  {
-    id:'torrey_pines',
-    name:'Torrey Pines / Sorrento Valley',
-    teaser:'Elite biotech and tech campus corridor. Golf, science, and serious money.',
-    why:'Scripps Research, Salk Institute, Google SD, Amazon AWS teams, and a dense biotech cluster. This is where San Diego\'s highest earners work.',
-    offices:['Scripps Research','Salk Institute','Google','Amazon AWS','Qualcomm campuses'],
-    industries:['Biotech','Pharma','Software engineering','AI/Cloud'],
-    bestFor:'Hotel bars, upscale La Jolla spots (5 min away), golf course bars',
-    bestNights:'Thursday (post-work)',
-    maleSkew:'Very high (heavily male industries)',
-    highlight:'The highest concentration of advanced degrees and high salaries in SD. They tend to spill into La Jolla and Del Mar after work.'
-  },
+const HOODS=[
+  {id:'little_italy',name:'Little Italy',teaser:'Finance and tech crowd after work. Best Tue–Thu.',industries:['Finance','Tech','Law'],bestNights:'Tue–Thu',maleskew:'55%',highlight:'Kettner Exchange is the anchor. Arrive by 6:30 to get bar seats.'},
+  {id:'downtown',name:'Downtown / Gaslamp',teaser:'Rooftop bars and hotel crowds. Good any weeknight.',industries:['Business travelers','Mixed professionals'],bestNights:'Wed–Fri',maleskew:'55%',highlight:'The Nolen rooftop. Get there before 8pm for the rail spots.'},
+  {id:'north_park',name:'North Park',teaser:'Creatives and tech. More conversational vibe.',industries:['Creative','Tech','Startup'],bestNights:'Thu–Fri',maleskew:'54%',highlight:'Polite Provisions. Order off the seasonal menu to start conversations.'},
+  {id:'la_jolla',name:'La Jolla',teaser:'Upscale ocean views. Strong Wed–Thu after-work crowd.',industries:['Biotech','Finance','Healthcare'],bestNights:'Wed–Thu',maleskew:'54%',highlight:"George's at the Cove rooftop. Most scenic bar in SD."},
+  {id:'del_mar',name:'Del Mar',teaser:'Coastal and relaxed. Best for sunset happy hours.',industries:['Finance','Real estate','Entrepreneurs'],bestNights:'Tue–Thu',maleskew:'55%',highlight:'Viewpoint Brewing rooftop at sunset. The vibe is unmatched.'},
+  {id:'point_loma',name:'Point Loma',teaser:'Liberty Station creative crowd. Hidden gem.',industries:['Defense','Creative','Local professionals'],bestNights:'Wed–Thu',maleskew:'55%',highlight:'Shelter Social Club. Strong regulars, easy to meet people.'},
+  {id:'torrey_pines',name:'Torrey Pines',teaser:'Biotech and golf crowd. Highest male skew in the city.',industries:['Biotech','Pharma','Tech'],bestNights:'Tue–Thu',maleskew:'62%',highlight:'Lodge Torrey Pines after the Torrey Pines golf crowd wraps up.'},
 ];
 
-const VENUES = {
+const VENUES={
   little_italy:[
-    {name:'Kettner Exchange',type:'Cocktail bar',why:'Best after-work bar in SD. The bar layout makes conversation unavoidable. Finance and tech crowd by 6:30.',vibes:['after-work','craft cocktails'],crowd:'Finance, tech',time:'6–9pm',tier:'gold'},
-    {name:'Born and Raised',type:'Steakhouse bar',why:'Sophisticated crowd, beautiful space. The menu is a natural conversation starter. Dress up.',vibes:['upscale','steakhouse'],crowd:'Finance, professionals',time:'7–10pm',tier:'rose'},
-    {name:'Ironside Fish & Oyster',type:'Oyster bar',why:'Bar-only seating is social by design. Oysters break the ice instantly.',vibes:['oyster bar','nautical'],crowd:'Foodies, professionals',time:'6–9pm',tier:''},
-    {name:'Waterfront Bar & Grill',type:'Classic dive bar',why:'Unpretentious, male-skewed, easy to strike up a conversation. The oldest bar in Little Italy.',vibes:['dive bar','regulars'],crowd:'Locals, mixed',time:'5–8pm',tier:''},
-    {name:'Herb & Wood',type:'Restaurant bar',why:'Beautiful open kitchen bar. The food is a conversation piece and the crowd is creative and curious.',vibes:['restaurant bar','modern'],crowd:'Foodies, creative professionals',time:'6–10pm',tier:''},
+    {n:'Kettner Exchange',type:'Cocktail Bar',why:'Best after-work bar in SD. Office crowd pours in by 6:30. Bar seating is gold.',tags:['after-work','high energy','bar seating'],tier:'gold'},
+    {n:'Born and Raised',type:'Steakhouse Bar',why:'Sophisticated crowd. The menu is a natural convo starter. Dress up.',tags:['upscale','dinner vibes','dressy'],tier:'gold'},
+    {n:'Juniper & Ivy Bar',type:'Restaurant Bar',why:'James Beard kitchen draws a food-obsessed, well-traveled crowd.',tags:['foodies','upscale casual'],tier:'rose'},
+    {n:'Ironside Fish & Oyster',type:'Oyster Bar',why:'Bar-only seating is social by design. Oysters start conversations.',tags:['oysters','nautical','casual'],tier:'rose'},
+    {n:'Herb & Wood',type:'Restaurant Bar',why:'Beautiful open kitchen bar. The food is a conversation piece.',tags:['modern','creative'],tier:'rose'},
   ],
-  downtown_gaslamp:[
-    {name:'The Nolen',type:'Rooftop bar',why:'Rooftop rail is a built-in conversation opener. Arrive before 8 to get the right spot.',vibes:['rooftop','cocktails'],crowd:'Professionals, mixed',time:'7–11pm',tier:'gold'},
-    {name:'The Grant Grill',type:'Hotel bar',why:'Business travelers + downtown workers. Male-skewed, old school cool. Very easy to talk to people.',vibes:['hotel bar','classic'],crowd:'Business travelers, professionals',time:'6–9pm',tier:'rose'},
-    {name:'Noble Experiment',type:'Speakeasy',why:'Hidden door entrance is an instant ice breaker. Intimate, conversation-first space.',vibes:['speakeasy','cocktail'],crowd:'Cocktail nerds, professionals',time:'8–11pm',tier:''},
-    {name:'Rustic Root',type:'Multi-level bar',why:'Three floors of different vibes. Easy to move around and meet different groups of people throughout the night.',vibes:['multi-level','rooftop'],crowd:'Young professionals, mixed',time:'7–11pm',tier:''},
-    {name:'Analog Bar',type:'Vinyl + cocktails',why:'Record player, great cocktails, and a crowd that actually wants to talk. Conversation is basically built into the concept.',vibes:['cocktail bar','music'],crowd:'Creatives, professionals',time:'7pm–close',tier:''},
-  ],
-  la_jolla:[
-    {name:'George\'s at the Cove',type:'Rooftop bar',why:'SD\'s most scenic bar. Upscale but not stuffy. Strong after-work crowd Wed and Thu.',vibes:['ocean view','upscale'],crowd:'Professionals, 35-50 crowd',time:'6–9pm',tier:'gold'},
-    {name:'The Whaling Bar',type:'Classic bar',why:'Historic La Jolla institution. Cultured, conversation-heavy crowd. Very male-skewed.',vibes:['classic bar','literary history'],crowd:'Locals, older professionals',time:'6–9pm',tier:'rose'},
-    {name:'Herringbone La Jolla',type:'Restaurant bar',why:'Beautiful space, beautiful crowd. Bar area fills quickly. Dress for it.',vibes:['restaurant bar','coastal upscale'],crowd:'Well-dressed mixed crowd',time:'7–10pm',tier:''},
-    {name:'The Marine Room',type:'Oceanfront bar',why:'Iconic La Jolla spot. The kind of place that impresses everyone. Reserve a bar spot.',vibes:['oceanfront','classic'],crowd:'Accomplished professionals',time:'6–9pm',tier:''},
-    {name:'Barfly',type:'Neighborhood bar',why:'La Jolla locals only. Low-key, unpretentious, and the regulars are genuinely interesting people.',vibes:['neighborhood bar','casual'],crowd:'La Jolla locals, professionals',time:'6–10pm',tier:''},
-  ],
-  del_mar:[
-    {name:'Viewpoint Brewing',type:'Rooftop brewery',why:'Best rooftop views north of the city. Active, outdoorsy exec crowd. Sunset happy hour is the move.',vibes:['rooftop','brewery'],crowd:'Active professionals, executives',time:'4–8pm',tier:'gold'},
-    {name:'Il Posto Ristorante',type:'Italian restaurant bar',why:'Village Del Mar regular crowd. Upscale without being pretentious. Intimate bar area.',vibes:['Italian','restaurant bar'],crowd:'Del Mar regulars, 40s professionals',time:'7–9pm',tier:'rose'},
-    {name:'Poseidon Restaurant',type:'Beach bar',why:'Direct beach access. Great transition from afternoon to evening. Good energy.',vibes:['beach bar','seafood'],crowd:'Beachgoers, professionals',time:'5–8pm',tier:''},
-    {name:'Jake\'s Del Mar',type:'Oceanfront restaurant bar',why:'Classic Del Mar. The bar crowd here is loyal and local. Beautiful setting, easy conversations.',vibes:['oceanfront','classic'],crowd:'Del Mar locals, 40s crowd',time:'5–9pm',tier:''},
-    {name:'Pacifica Del Mar',type:'Restaurant bar',why:'Upscale but approachable. The cocktail happy hour draws the Carmel Valley executive crowd.',vibes:['upscale','happy hour'],crowd:'Carmel Valley executives, professionals',time:'4–7pm',tier:''},
+  downtown:[
+    {n:'The Nolen',type:'Rooftop Bar',why:'Rooftop rail is a built-in convo opener. Arrive before 8 to get the right spot.',tags:['rooftop','cocktails','views'],tier:'gold'},
+    {n:'The Grant Grill',type:'Hotel Bar',why:'Business travelers and downtown workers. Male-skewed, old school cool.',tags:['hotel bar','classic','business crowd'],tier:'gold'},
+    {n:'Puesto Seaport',type:'Mexican Bar',why:'Lively energy, beautiful bar, strong cocktail program.',tags:['lively','cocktails'],tier:'rose'},
+    {n:'Rustic Root',type:'Multi-level Bar',why:'Three floors of different vibes. Easy to move around and meet different groups.',tags:['multi-level','rooftop','fun'],tier:'rose'},
+    {n:'Noble Experiment',type:'Speakeasy',why:'Hidden door entrance is an instant ice breaker. Intimate and convo-first.',tags:['speakeasy','intimate','cocktails'],tier:'rose'},
   ],
   north_park:[
-    {name:'Polite Provisions',type:'Craft cocktail bar',why:'Most interesting bar in SD. The menu starts every conversation. Creative, smart crowd.',vibes:['craft cocktail','apothecary'],crowd:'Creatives, tech workers',time:'7–10pm',tier:'gold'},
-    {name:'Tiger!Tiger!',type:'Beer garden',why:'Massive outdoor patio makes circulating easy. Low-pressure and very social.',vibes:['craft beer','outdoor'],crowd:'Neighborhood locals, young professionals',time:'6–9pm',tier:'rose'},
-    {name:'The Casbah',type:'Live music bar',why:'Live music nights perfect for shoulder-to-shoulder proximity. Check their calendar.',vibes:['live music','indie bar'],crowd:'Musicians, creatives, 30s crowd',time:'8–11pm',tier:''},
-    {name:'Gravity Heights',type:'Brewery and pub',why:'Communal tables and a tech-heavy weeknight crowd. Easy to start a conversation over a shared flight.',vibes:['brewery','communal'],crowd:'Tech workers, young professionals',time:'6–9pm',tier:''},
-    {name:'Station Tavern',type:'Gastropub',why:'Cozy neighborhood institution. The burger is an ice breaker and the crowd is laid-back and approachable.',vibes:['gastropub','neighborhood'],crowd:'North Park locals, 30s crowd',time:'6–10pm',tier:''},
+    {n:'Polite Provisions',type:'Craft Cocktail Bar',why:'Most interesting bar in SD. The menu starts every conversation.',tags:['craft cocktails','creative crowd','apothecary'],tier:'gold'},
+    {n:'Tiger!Tiger!',type:'Craft Beer Bar',why:'Massive outdoor patio makes it easy to circulate. Low-pressure.',tags:['outdoor','craft beer','social'],tier:'rose'},
+    {n:'Gravity Heights',type:'Brewery',why:'Communal tables, tech and startup crowd on weeknights.',tags:['brewery','tech crowd','casual'],tier:'rose'},
+    {n:'Station Tavern',type:'Gastropub',why:'Cozy neighborhood institution. Approachable crowd.',tags:['neighborhood','approachable'],tier:'rose'},
+    {n:'The Casbah',type:'Live Music Bar',why:'Live music nights perfect for shoulder-to-shoulder proximity.',tags:['live music','indie','energetic'],tier:'rose'},
+  ],
+  la_jolla:[
+    {n:"George's at the Cove",type:'Rooftop Restaurant Bar',why:"SD's most scenic rooftop bar. Strong Wed and Thu after-work crowd.",tags:['rooftop','ocean view','upscale'],tier:'gold'},
+    {n:'The Whaling Bar',type:'Classic Bar',why:'Historic La Jolla institution. Cultured, conversation-heavy.',tags:['classic','literary','intimate'],tier:'gold'},
+    {n:'The Marine Room',type:'Oceanfront Bar',why:'Iconic La Jolla spot right on the water.',tags:['oceanfront','classic','upscale'],tier:'rose'},
+    {n:'Herringbone La Jolla',type:'Restaurant Bar',why:'Beautiful space, beautiful crowd. Bar area fills quickly.',tags:['upscale','coastal','lively'],tier:'rose'},
+    {n:'Puesto La Jolla',type:'Mexican Bar',why:'Lively, beautiful bar with a great cocktail program.',tags:['lively','cocktails','fun'],tier:'rose'},
+  ],
+  del_mar:[
+    {n:'Viewpoint Brewing',type:'Rooftop Brewery',why:'Best rooftop views north of the city. Sunset happy hour is the move.',tags:['rooftop','sunset','coastal'],tier:'gold'},
+    {n:"Jake's Del Mar",type:'Oceanfront Bar',why:'Classic Del Mar. Loyal, local bar crowd. Beautiful setting.',tags:['oceanfront','classic','locals'],tier:'rose'},
+    {n:'Sbicca Del Mar',type:'Restaurant Bar',why:"Del Mar's most beloved local restaurant. Intimate bar area.",tags:['neighborhood','intimate','locals'],tier:'rose'},
+    {n:'Il Posto Ristorante',type:'Italian Restaurant Bar',why:'Village Del Mar regular crowd. Upscale without being pretentious.',tags:['Italian','upscale casual'],tier:'rose'},
+    {n:'Pacifica Del Mar',type:'Happy Hour Bar',why:'Draws the Carmel Valley executive crowd at happy hour.',tags:['happy hour','executives'],tier:'rose'},
   ],
   point_loma:[
-    {name:'Shelter Social Club',type:'Restaurant bar',why:'Liberty Station\'s best bar scene. Local creative crowd, strong regulars, great energy.',vibes:['restaurant bar','creative'],crowd:'Creatives, defense, locals',time:'6–9pm',tier:'gold'},
-    {name:'Stone Brewing Liberty Station',type:'Brewery taproom',why:'Huge outdoor space, easy to meet people, communal tables encourage conversation.',vibes:['brewery','outdoor'],crowd:'Mixed local, young professionals',time:'4–8pm',tier:'rose'},
-    {name:'The Smoking Gun',type:'Cocktail bar',why:'Cozy, intimate, strong cocktail program. The kind of bar where you actually talk to your neighbors.',vibes:['cocktail bar','intimate'],crowd:'Locals, 30s crowd',time:'7–11pm',tier:''},
-    {name:'Ketch Grill & Taps',type:'Waterfront bar',why:'Right on the water with a relaxed local vibe. The sunset view alone is a conversation starter.',vibes:['waterfront','casual'],crowd:'Point Loma locals, boaters',time:'5–9pm',tier:''},
-    {name:'The Red Door',type:'Wine bar',why:'Intimate wine bar with a sophisticated local crowd. Pours are generous and the conversations are real.',vibes:['wine bar','intimate'],crowd:'Professionals, locals, 30s-40s',time:'5–10pm',tier:''},
+    {n:'Shelter Social Club',type:'Restaurant Bar',why:"Liberty Station's best bar scene. Strong regulars, great energy.",tags:['creative','locals','energetic'],tier:'gold'},
+    {n:'Stone Brewing Liberty Station',type:'Brewery',why:'Huge outdoor space, communal tables encourage conversation.',tags:['outdoor','brewery','social'],tier:'rose'},
+    {n:'The Red Door',type:'Wine Bar',why:'Intimate wine bar. Generous pours and real conversations.',tags:['wine bar','intimate'],tier:'rose'},
+    {n:'The Smoking Gun',type:'Cocktail Bar',why:'Cozy intimate cocktail bar where you talk to your neighbors.',tags:['cocktails','intimate','cozy'],tier:'rose'},
+    {n:'Ketch Grill & Taps',type:'Waterfront Bar',why:'Right on the water. The sunset view is a conversation starter.',tags:['waterfront','casual','sunset'],tier:'rose'},
   ],
   torrey_pines:[
-    {name:'Lodge Torrey Pines Bar',type:'Hotel bar',why:'Heavy male skew from the Torrey Pines golf and conference crowd. Relaxed, easy conversation.',vibes:['hotel bar','golf adjacent'],crowd:'Business travelers, 40s+ professionals',time:'5–8pm',tier:'gold'},
-    {name:'George\'s at the Cove',type:'Rooftop bar',why:'5 minutes from the corridor. The Torrey Pines crowd migrates here after work on Thursdays.',vibes:['ocean view','upscale'],crowd:'Biotech, tech professionals',time:'6–9pm',tier:'rose'},
-    {name:'The Marine Room',type:'Oceanfront bar',why:'Iconic La Jolla spot. The kind of place that impresses everyone. Reserve a bar spot.',vibes:['oceanfront','classic'],crowd:'Accomplished professionals',time:'6–9pm',tier:''},
-    {name:'Herringbone La Jolla',type:'Restaurant bar',why:'The Scripps and Salk crowd unwinds here on Thursdays. Beautiful space, effortlessly social.',vibes:['restaurant bar','upscale'],crowd:'Biotech, research professionals',time:'7–10pm',tier:''},
-    {name:'Puesto La Jolla',type:'Mexican restaurant bar',why:'Lively, beautiful bar with a great cocktail program. The energy is social and the crowd is accomplished.',vibes:['cocktails','lively'],crowd:'Young professionals, mixed',time:'6–10pm',tier:''},
+    {n:'Lodge Torrey Pines Clubhouse',type:'Hotel Bar',why:'Highest male skew in the city. Biotech and golf crowd.',tags:['hotel bar','golf','biotech'],tier:'gold'},
+    {n:'The Marine Room Bar',type:'Oceanfront Bar',why:'The Salk and Scripps crowd comes here for celebrations.',tags:['oceanfront','upscale','professionals'],tier:'gold'},
+    {n:'Puesto UTC',type:'Mexican Bar',why:'UTC location draws directly from Qualcomm and the biotech cluster.',tags:['lively','biotech crowd','cocktails'],tier:'rose'},
+    {n:'Herringbone (La Jolla)',type:'Restaurant Bar',why:'The Torrey Pines crowd spills into La Jolla on Thursdays.',tags:['upscale','biotech','lively'],tier:'rose'},
+    {n:'Bluefire Grill',type:'Hotel Bar',why:'Conference crowd makes it easy to start conversations.',tags:['hotel bar','conference crowd'],tier:'rose'},
   ],
 };
 
-let friendData=null, allDates=[], claimedDates=[], selectedDate=null, selectedHood=null, selectedVenue=null;
-
-async function init(){
+window.addEventListener('DOMContentLoaded',async()=>{
   const params=new URLSearchParams(window.location.search);
-  const token=params.get('token');
-  if(!token){showError();return;}
+  token=params.get('token');
+  if(!token){showView('errorView');return;}
   try{
     const{data:friend,error}=await sb.from('ww_friends').select('*').eq('claim_token',token).single();
-    if(error||!friend){showError();return;}
+    if(error||!friend){showView('errorView');return;}
     friendData=friend;
-    document.getElementById('heroSub').textContent=`${friend.name}, your bestie is the main character this month. Pick a night, pick a spot, and make it iconic.`;
-    const[{data:dates},{data:claims}]=await Promise.all([
-      sb.from('ww_dates').select('date_iso').eq('session_id',friend.session_id).order('date_iso'),
-      sb.from('ww_claims').select('date_iso,friend_id,venue_name,friend_note').eq('session_id',friend.session_id)
-    ]);
-    allDates=dates||[];claimedDates=claims||[];
-    const myClaim=claimedDates.find(c=>c.friend_id===friend.id);
-    if(myClaim){showAlreadyClaimed(myClaim);return;}
-    showStep(1);
-  } catch(e) { console.error(e); showError(); alert(e.message); }
-}
+    document.getElementById('heroSub').textContent=`${friend.name}, your bestie needs you. Pick a night, pick a spot.`;
+    const{data:existingClaim}=await sb.from('ww_claims').select('*').eq('friend_id',friend.id).single();
+    if(existingClaim){
+      const d=new Date(existingClaim.date_iso+'T12:00:00');
+      document.getElementById('alreadyDate').textContent=`${DAYS[d.getDay()]} ${MONTHS[d.getMonth()]} ${d.getDate()} — ${existingClaim.venue_name||'Venue TBD'}`;
+      showView('alreadyView');return;
+    }
+    const{data:allDates}=await sb.from('ww_dates').select('date_iso').eq('session_id',friend.session_id).order('date_iso');
+    const{data:allClaims}=await sb.from('ww_claims').select('date_iso').eq('session_id',friend.session_id);
+    const claimedDates=new Set((allClaims||[]).map(c=>c.date_iso));
+    buildDateList(allDates||[],claimedDates);
+    showView('step1View');
+  }catch(e){console.error(e);showView('errorView');}
+});
 
-function showError(){showView('errorView');}
-function showAlreadyClaimed(claim){
-  const d=new Date(claim.date_iso+'T12:00:00');
-  document.getElementById('alreadyDate').textContent=`${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`;
-  showView('alreadyView');
-}
-
-function showView(id){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function showStep(n){
-  if(n===1){buildDateList();showView('step1View');}
-  else if(n===2){buildHoodGrid();showView('step2View');}
-  else if(n===3){buildVenueList();showView('step3View');}
-}
-
-function goBack(n){showStep(n);}
-
-function buildDateList(){
-  const taken=new Set(claimedDates.map(c=>c.date_iso));
-  const avail=allDates.filter(({date_iso})=>!taken.has(date_iso));
-  const takenList=allDates.filter(({date_iso})=>taken.has(date_iso));
-  if(!avail.length){
-    document.getElementById('dateList').innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-style:italic;font-family:Playfair Display,serif;">All nights have been claimed. The main character is fully booked!</div>';
-    document.getElementById('btnDateNext').style.display='none';
-    return;
-  }
-  document.getElementById('dateList').innerHTML=[...avail,...takenList].map(({date_iso})=>{
-    const t=taken.has(date_iso);
+function buildDateList(dates,claimedDates){
+  const el=document.getElementById('dateList');
+  el.innerHTML=dates.map(({date_iso})=>{
+    const taken=claimedDates.has(date_iso);
     const d=new Date(date_iso+'T12:00:00');
-    return`<div class="date-option${t?' taken':''}" onclick="${!t?`pickDate('${date_iso}',this)`:''}" data-iso="${date_iso}">
-      <div class="date-box"><div class="db-day">${DAYS_S[d.getDay()]}</div><div class="db-num">${d.getDate()}</div><div class="db-mon">${MONTHS_S[d.getMonth()]}</div></div>
-      <div class="do-info"><div class="do-weekday">${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}</div><div class="do-sub">${t?'Already claimed':'Tap to claim this night'}</div></div>
-      ${t?'<span class="taken-pill">Taken</span>':'<div class="do-check" id="dc-'+date_iso+'"></div>'}
+    return`<div class="date-opt${taken?' taken':''}" onclick="pickDate('${date_iso}',this)" data-iso="${date_iso}">
+      <div class="dbox"><div class="dbox-day">${DAYS[d.getDay()]}</div><div class="dbox-num">${d.getDate()}</div><div class="dbox-mon">${MONTHS[d.getMonth()]}</div></div>
+      <div class="dopt-info"><div class="dopt-wd">${DAYS[d.getDay()]}day, ${MONTHS[d.getMonth()]} ${d.getDate()}</div><div class="dopt-sub">${taken?'Already claimed':'Available — tap to claim'}</div></div>
+      ${taken?'<span class="taken-pill">Taken</span>':'<div class="dopt-check">✓</div>'}
     </div>`;
   }).join('');
 }
 
 function pickDate(iso,el){
-  document.querySelectorAll('.date-option').forEach(d=>{d.classList.remove('selected');const c=d.querySelector('.do-check');if(c)c.textContent='';});
-  el.classList.add('selected');
-  const c=document.getElementById('dc-'+iso);if(c)c.textContent='✓';
-  selectedDate=iso;
-  document.getElementById('btnDateNext').disabled=false;
+  document.querySelectorAll('.date-opt').forEach(d=>d.classList.remove('on'));
+  el.classList.add('on');
+  selDate=iso;
+  document.getElementById('dateNextBtn').disabled=false;
 }
 
-function goToStep2(){if(!selectedDate)return;showStep(2);}
+document.getElementById('dateNextBtn').addEventListener('click',()=>goStep(2));
 
-function buildHoodGrid(){
-  document.getElementById('hoodGrid').innerHTML=NEIGHBORHOODS.map(h=>`
-    <div class="hood-card" id="hc-${h.id}" onclick="pickHood('${h.id}',event)">
-      <div class="hood-card-header">
-        <div class="hood-select-circle" id="hsc-${h.id}"></div>
-        <div class="hood-card-main">
-          <div class="hood-name">${h.name}</div>
-          <div class="hood-teaser">${h.teaser}</div>
-        </div>
+function goStep(n){
+  if(n===2)buildHoodList();
+  if(n===3){if(!selHood)return;buildVenueList();}
+  showView('step'+n+'View');
+}
+
+function buildHoodList(){
+  document.getElementById('hoodList').innerHTML=HOODS.map(h=>`
+    <div class="hcard${selHood===h.id?' on':''}" id="hc-${h.id}">
+      <div class="hcard-head" onclick="pickHood('${h.id}')">
+        <div class="hcard-circle">✓</div>
+        <div class="hcard-main"><div class="hcard-name">${h.name}</div><div class="hcard-teaser">${h.teaser}</div></div>
       </div>
-      <div class="hood-expand-btn" onclick="toggleIntel('${h.id}',event)">
-        <span id="hei-${h.id}">+ See neighborhood intel</span>
-      </div>
-      <div class="hood-intel" id="hi-${h.id}">
-        <div class="hood-intel-inner">
-          <div class="intel-row"><div class="intel-label">Why go here</div><div class="intel-value">${h.why}</div></div>
-          <div class="intel-row"><div class="intel-label">Who works nearby</div><div class="intel-value">${h.offices.map(o=>`<span class="intel-tag">${o}</span>`).join('')}</div></div>
-          <div class="intel-row"><div class="intel-label">Industries</div><div class="intel-value">${h.industries.map(i=>`<span class="intel-tag">${i}</span>`).join('')}</div></div>
-          <div class="intel-row"><div class="intel-label">Best for</div><div class="intel-value">${h.bestFor}</div></div>
-          <div class="intel-row"><div class="intel-label">Best nights</div><div class="intel-value">${h.bestNights}</div></div>
-          <div class="intel-row"><div class="intel-label">Male skew</div><div class="intel-value">${h.maleSkew}</div></div>
-          <div class="intel-highlight">"${h.highlight}"</div>
+      <div class="hcard-expand" onclick="toggleIntel('${h.id}')">+ See neighborhood intel</div>
+      <div class="hcard-intel" id="intel-${h.id}">
+        <div class="intel-inner">
+          <div class="intel-row"><div class="intel-lbl">Who goes out here</div><div class="intel-val">${h.industries.map(i=>`<span class="intel-tag">${i}</span>`).join('')}</div></div>
+          <div class="intel-row"><div class="intel-lbl">Best nights</div><div class="intel-val">${h.bestNights}</div></div>
+          <div class="intel-row"><div class="intel-lbl">Male skew</div><div class="intel-val">${h.maleskew} male</div></div>
+          <div class="intel-hl">"${h.highlight}"</div>
         </div>
       </div>
     </div>`).join('');
+  document.getElementById('hoodNextBtn').disabled=!selHood;
 }
 
-function toggleIntel(id,e){
-  e.stopPropagation();
-  const panel=document.getElementById('hi-'+id);
-  const btn=document.getElementById('hei-'+id);
-  const open=panel.classList.toggle('open');
-  btn.textContent=open?'− Hide intel':'+ See neighborhood intel';
+function pickHood(id){
+  selHood=id;
+  document.querySelectorAll('.hcard').forEach(h=>h.classList.remove('on'));
+  document.getElementById('hc-'+id).classList.add('on');
+  document.getElementById('hoodNextBtn').disabled=false;
 }
 
-function pickHood(id,e){
-  if(e.target.closest('.hood-expand-btn')||e.target.closest('.hood-intel'))return;
-  document.querySelectorAll('.hood-card').forEach(c=>c.classList.remove('selected'));
-  document.querySelectorAll('[id^="hsc-"]').forEach(c=>c.textContent='');
-  document.getElementById('hc-'+id).classList.add('selected');
-  document.getElementById('hsc-'+id).textContent='✓';
-  selectedHood=id;
-  document.getElementById('btnHoodNext').disabled=false;
+function toggleIntel(id){
+  const el=document.getElementById('intel-'+id);
+  el.classList.toggle('on');
 }
 
-function goToStep3(){if(!selectedHood)return;showStep(3);}
+document.getElementById('hoodNextBtn').addEventListener('click',()=>goStep(3));
 
 function buildVenueList(){
-  const venues=VENUES[selectedHood]||[];
+  const venues=VENUES[selHood]||[];
   document.getElementById('venueList').innerHTML=venues.map((v,i)=>`
-    <div class="venue-card ${v.tier}" id="vc-${i}" onclick="pickVenue(${i},this)">
-      <div class="venue-card-header">
-        <div>
-          <div class="venue-card-name">${v.name}</div>
-          <div class="venue-hood-tag">${v.type}</div>
-        </div>
-        <div class="venue-card-check" id="vcc-${i}"></div>
-      </div>
-      <div class="venue-why">${v.why}</div>
-      <div class="venue-tags">
-        ${v.vibes.map(t=>`<span class="vtag vtag-vibe">${t}</span>`).join('')}
-        <span class="vtag vtag-crowd">${v.crowd}</span>
-        <span class="vtag vtag-time">${v.time}</span>
-      </div>
-    </div>`).join('') +
-    `<div class="venue-card" id="vc-custom" onclick="pickCustomVenue(this)" style="border-style:dashed;">
-      <div class="venue-card-header">
-        <div>
-          <div class="venue-card-name" style="font-family:'DM Sans',sans-serif;font-size:0.9rem;">I have a better idea</div>
-          <div class="venue-hood-tag">Your own pick</div>
-        </div>
-        <div class="venue-card-check" id="vcc-custom"></div>
-      </div>
-      <div class="venue-why">You know a spot she'll love? Tell us where you're taking her.</div>
-      <div id="customVenueInput" style="display:none;margin-top:0.5rem;">
-        <input class="note-input" id="customVenueName" placeholder="Name of the bar or restaurant" onclick="event.stopPropagation()" style="min-height:0;padding:0.5rem 0.75rem;margin-bottom:0;" />
-      </div>
-    </div>`;
+    <div class="vcard ${v.tier}${selVenue===v.n?' on':''}" onclick="pickVenue('${v.n.replace(/'/g,"\\'")}',this)">
+      <div class="vcard-top"><div class="vcard-name">${v.n}</div><div class="vcard-check">✓</div></div>
+      <div class="vcard-type">${v.type}</div>
+      <div class="vcard-why">${v.why}</div>
+      <div class="vtags">${v.tags.map(t=>`<span class="vtag vtag-v">${t}</span>`).join('')}</div>
+    </div>`).join('');
+  document.getElementById('confirmBtn').disabled=!selVenue;
 }
 
-function pickCustomVenue(el){
-  document.querySelectorAll('.venue-card').forEach(c=>c.classList.remove('selected'));
-  document.querySelectorAll('[id^="vcc-"]').forEach(c=>c.textContent='');
-  el.classList.add('selected');
-  document.getElementById('vcc-custom').textContent='✓';
-  document.getElementById('customVenueInput').style.display='block';
-  document.getElementById('customVenueName').focus();
-  selectedVenue={name:'',type:'Custom pick',custom:true};
-  document.getElementById('btnConfirm').disabled=false;
-  document.getElementById('customVenueName').oninput=function(){
-    selectedVenue.name=this.value.trim()||'Their own pick';
-  };
+function pickVenue(name,el){
+  selVenue=name;
+  document.querySelectorAll('.vcard').forEach(v=>v.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('confirmBtn').disabled=false;
 }
 
-function pickVenue(i,el){
-  document.querySelectorAll('.venue-card').forEach(c=>c.classList.remove('selected'));
-  document.querySelectorAll('[id^="vcc-"]').forEach(c=>c.textContent='');
-  el.classList.add('selected');
-  document.getElementById('vcc-'+i).textContent='✓';
-  selectedVenue=VENUES[selectedHood][i];
-  document.getElementById('btnConfirm').disabled=false;
-}
+document.getElementById('confirmBtn').addEventListener('click',confirmClaim);
 
 async function confirmClaim(){
-  if(!selectedDate||!selectedVenue||!friendData)return;
   const note=document.getElementById('noteInput').value.trim();
-  const btn=document.getElementById('btnConfirm');
-  btn.innerHTML='<div class="spinner"></div>';btn.disabled=true;
+  const btn=document.getElementById('confirmBtn');
+  btn.disabled=true;
+  btn.innerHTML='<div class="spinner"></div>';
   try{
-    const{data:existing}=await sb.from('ww_claims').select('id').eq('session_id',friendData.session_id).eq('date_iso',selectedDate).single();
-    if(existing){btn.innerHTML='Lock it in →';btn.disabled=false;alert('Someone just grabbed that night! Pick another one.');buildDateList();showStep(1);return;}
     const{error}=await sb.from('ww_claims').insert({
       session_id:friendData.session_id,
-      date_iso:selectedDate,
       friend_id:friendData.id,
       friend_name:friendData.name,
-      venue_name:selectedVenue.name,
-      venue_type:selectedVenue.type,
-      neighborhood:selectedHood,
+      date_iso:selDate,
+      venue_name:selVenue,
+      neighborhood:selHood,
       friend_note:note||null
     });
     if(error)throw error;
-    showSuccess();
-  }catch(e){console.error(e);btn.innerHTML='Lock it in →';btn.disabled=false;alert('Something went wrong. Try again.');}
-}
-
-function showSuccess(){
-  const d=new Date(selectedDate+'T12:00:00');
-  document.getElementById('successDate').textContent=`${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`;
-  document.getElementById('successVenue').textContent=selectedVenue.name;
-  showView('successView');
-}
-
-function showPlannerFromSuccess() {
-  showView('plannerView');
-}
-
-const HOOD_NAMES = {
-  little_italy:'Little Italy', downtown_gaslamp:'Downtown / Gaslamp',
-  la_jolla:'La Jolla', del_mar:'Del Mar', north_park:'North Park',
-  point_loma:'Point Loma', torrey_pines:'Torrey Pines'
-};
-
-const ALL_VENUES_FLAT = Object.entries(VENUES).flatMap(([hood, venues]) =>
-  venues.map(v => ({ ...v, hoodId: hood }))
-);
-
-async function generateFriendPlan() {
-  const vibe = document.getElementById('fpVibe').value;
-  const size = document.getElementById('fpSize').value;
-  const hoodName = selectedHood ? (HOOD_NAMES[selectedHood] || selectedHood) : 'Anywhere';
-  const out = document.getElementById('fpOutput');
-  out.style.display = 'block';
-  out.innerHTML = `<div class="ai-output" style="margin-top:1rem;"><div class="ai-label">Curating your night</div><div style="padding:0.75rem 0;"><div class="loading-dots"><span>.</span><span>.</span><span>.</span></div></div></div>`;
-
-  let spots = selectedHood ? ALL_VENUES_FLAT.filter(v => v.hoodId === selectedHood) : ALL_VENUES_FLAT;
-  if (!spots.length) spots = ALL_VENUES_FLAT;
-  spots = spots.slice(0, 6);
-
-  const prompt = `You are a sharp San Diego social strategist and wing woman advisor.
-Two women are going out together. Vibe: "${vibe}". Area: ${hoodName}. Group: ${size}.
-Their confirmed venue is: ${selectedVenue ? selectedVenue.name : 'TBD'}.
-
-Other venue options nearby:
-${spots.map(s => `- ${s.name} (${HOOD_NAMES[s.hoodId]}): ${s.type}. ${s.why} Best time: ${s.time}.`).join('\n')}
-
-Give them a fun, confident night plan. Include: arrival time and positioning tip, 3 tactical tips for meeting people as a duo (not just solo), a suggested flow for the night (e.g. drinks → dinner → nightcap), and one bold "main character move" they should make that night.
-
-Keep it warm, direct, and fun — like advice from your coolest friend.
-
-Respond ONLY in this JSON format:
-{"arrival":"time + tip","flow":"drinks → dinner → etc","tips":["tip1","tip2","tip3"],"mainCharacterMove":"one bold thing to do","vibeScore":88}`;
-
-  try {
-    const res = await fetch('/api/chat', {
-  method: 'POST', headers: {'Content-Type':'application/json'},
-  body: JSON.stringify({ prompt })
-    });
-    const data = await res.json();
-    const text = data.content.map(i => i.text||'').join('');
-    const plan = JSON.parse(text.replace(/```json|```/g,'').trim());
-    out.innerHTML = `<div class="ai-output" style="margin-top:1rem;">
-      <div class="ai-label">Your night plan</div>
-      <div style="font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:0.2rem;">${selectedVenue ? selectedVenue.name : hoodName}</div>
-      <div style="font-size:0.78rem;color:rgba(250,247,242,0.5);margin-bottom:1.1rem;">${hoodName} · ${vibe}</div>
-      <div style="margin-bottom:0.9rem;"><div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--blush);margin-bottom:0.35rem;font-weight:500;">Arrival</div><div style="font-size:0.84rem;line-height:1.6;color:rgba(250,247,242,0.88);">${plan.arrival}</div></div>
-      <div style="margin-bottom:0.9rem;"><div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--blush);margin-bottom:0.35rem;font-weight:500;">The flow</div><div style="font-size:0.84rem;line-height:1.6;color:rgba(250,247,242,0.88);">${plan.flow}</div></div>
-      <div style="margin-bottom:0.9rem;"><div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--blush);margin-bottom:0.35rem;font-weight:500;">Wing woman tactics</div><ul style="list-style:none;">${plan.tips.map(t=>`<li style="padding:0.3rem 0 0.3rem 1.1rem;position:relative;font-size:0.83rem;color:rgba(250,247,242,0.85);line-height:1.5;"><span style="position:absolute;left:0;color:var(--blush);">→</span>${t}</li>`).join('')}</ul></div>
-      <div style="background:rgba(232,196,184,0.12);border-radius:10px;padding:0.85rem 1rem;border-left:3px solid var(--blush);"><div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--blush);margin-bottom:0.35rem;font-weight:500;">Main character move ✦</div><div style="font-size:0.85rem;color:rgba(250,247,242,0.92);line-height:1.6;font-style:italic;">${plan.mainCharacterMove}</div></div>
-    </div>`;
-  } catch(e) {
-    out.innerHTML = `<div class="ai-output" style="margin-top:1rem;"><div class="ai-label">Your night plan</div><div style="font-size:0.85rem;line-height:1.7;color:rgba(250,247,242,0.88);">Arrive by 7pm and claim the bar. Face outward, not inward. Order something worth talking about. Let the night come to you — you're the main character, not the one chasing the scene.</div></div>`;
+    const d=new Date(selDate+'T12:00:00');
+    document.getElementById('successDate').textContent=`${DAYS[d.getDay()]}day, ${MONTHS[d.getMonth()]} ${d.getDate()}`;
+    document.getElementById('successVenue').textContent=selVenue;
+    showView('successView');
+  }catch(e){
+    console.error(e);
+    btn.disabled=false;
+    btn.textContent='Lock it in →';
+    alert('Something went wrong: '+e.message);
   }
 }
 
-function fmtDate(iso){const d=new Date(iso+'T12:00:00');return`${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`;}
+function showPlanView(){showView('planView');}
 
-init();
+async function genFriendPlan(){
+  const vibe=document.getElementById('fpVibe').value;
+  const size=document.getElementById('fpSize').value;
+  const out=document.getElementById('fpOut');
+  out.innerHTML=`<div class="ai-box"><div class="ai-lbl">Building your plan</div><div class="loading-dots"><span>.</span><span>.</span><span>.</span></div></div>`;
+  const hoodData=HOODS.find(h=>h.id===selHood)||{name:selHood};
+  const venues=VENUES[selHood]||[];
+  const prompt=`You are a sharp San Diego wing woman advisor. A woman is planning a night out as a wing woman for her friend.\n\nVenue: ${selVenue} in ${hoodData.name}\nVibe: ${vibe}\nGroup: ${size}\nNeighborhood intel: ${hoodData.highlight}\nOther nearby options: ${venues.map(v=>v.n).join(', ')}\n\nGive a concise, fun wing woman game plan: arrival time, where to position, 3 tactical tips, and a fun activity to add to the night.\n\nRespond ONLY in this JSON format:\n{"arrival":"time","position":"where + why","tips":["tip1","tip2","tip3"],"bonus":"one fun thing to add to the night","wingwomanScore":85}`;
+  try{
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    const data=await res.json();
+    const text=data.content.map(i=>i.text||'').join('');
+    const p=JSON.parse(text.replace(/```json|```/g,'').trim());
+    out.innerHTML=`<div class="ai-box"><div class="ai-lbl">Your wing woman game plan</div><div style="margin-bottom:.85rem;"><div style="font-size:.58rem;text-transform:uppercase;letter-spacing:.15em;color:var(--blush);margin-bottom:.3rem;font-weight:500;">Arrive</div><div style="font-size:.84rem;line-height:1.6;color:rgba(247,242,236,.88);">${p.arrival}</div></div><div style="margin-bottom:.85rem;"><div style="font-size:.58rem;text-transform:uppercase;letter-spacing:.15em;color:var(--blush);margin-bottom:.3rem;font-weight:500;">Position</div><div style="font-size:.84rem;line-height:1.6;color:rgba(247,242,236,.88);">${p.position}</div></div><div style="margin-bottom:.85rem;"><div style="font-size:.58rem;text-transform:uppercase;letter-spacing:.15em;color:var(--blush);margin-bottom:.3rem;font-weight:500;">Tactical tips</div><ul style="list-style:none;">${p.tips.map(t=>`<li style="padding:.28rem 0 .28rem 1rem;position:relative;font-size:.82rem;color:rgba(247,242,236,.85);"><span style="position:absolute;left:0;color:var(--blush);">→</span>${t}</li>`).join('')}</ul></div><div style="margin-bottom:.85rem;"><div style="font-size:.58rem;text-transform:uppercase;letter-spacing:.15em;color:var(--blush);margin-bottom:.3rem;font-weight:500;">Bonus move</div><div style="font-size:.84rem;line-height:1.6;color:rgba(247,242,236,.88);">${p.bonus}</div></div><div style="text-align:center;padding-top:.85rem;border-top:1px solid rgba(247,242,236,.08);"><div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--blush);line-height:1;">${p.wingwomanScore}</div><div style="font-size:.56rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(247,242,236,.32);">Wing woman score</div></div></div>`;
+  }catch(e){
+    out.innerHTML=`<div class="ai-box"><div style="font-size:.82rem;color:rgba(247,242,236,.7);">Arrive 15 minutes before her. Sit at the bar, not a table. Order a drink that starts conversations. Your job is to make the room notice her first.</div></div>`;
+  }
+}
+
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
 </script>
 </body>
 </html>
