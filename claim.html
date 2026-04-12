@@ -444,9 +444,13 @@ async function confirmClaim(){
     });
     if(error)throw error;
     const d=new Date(selDate+'T12:00:00');
-    document.getElementById('successDate').textContent=`${DAYS[d.getDay()]}day, ${MONTHS[d.getMonth()]} ${d.getDate()}`;
-    document.getElementById('successVenue').textContent=selVenue;
-    showView('successView');
+document.getElementById('successDate').textContent=`${DAYS[d.getDay()]}day, ${MONTHS[d.getMonth()]} ${d.getDate()}`;
+document.getElementById('successVenue').textContent=selVenue;
+const start=selDate.replace(/-/g,'')+'T190000';
+const end=selDate.replace(/-/g,'')+'T220000';
+const calUrl=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=Wing+Woman+Night+%F0%9F%AA%BD&dates=${start}/${end}&details=Wing+woman+night+at+${encodeURIComponent(selVenue)}&location=${encodeURIComponent(selVenue+', San Diego, CA')}`;
+document.getElementById('calendarLink').href=calUrl;
+showView('successView');
   }catch(e){
     console.error(e);
     btn.disabled=false;
