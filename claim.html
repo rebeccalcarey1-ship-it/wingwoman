@@ -405,8 +405,13 @@ function buildVenueList(){
   const venues=VENUES[selHood]||[];
   document.getElementById('venueList').innerHTML=venues.map((v,i)=>`
     <div class="vcard ${v.tier}${selVenue===v.n?' on':''}" onclick="pickVenue('${v.n.replace(/'/g,"\\'")}',this)">
-      <div class="vcard-top"><div class="vcard-name">${v.n}</div><div class="vcard-check">✓</div></div>
+      <div class="vcard-top"><div class="vcard-name">${v.n}</div><div style="display:flex;align-items:center;gap:.5rem;"><div style="background:var(--deep);color:var(--cream);font-size:.6rem;font-weight:600;padding:3px 8px;border-radius:100px;">${v.score}</div><div class="vcard-check">✓</div></div></div>
       <div class="vcard-type">${v.type}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.22rem;margin-bottom:.5rem;">
+        <div style="font-size:.68rem;color:var(--muted);"><strong style="color:var(--deep);font-weight:500;">M/F:</strong> ${v.mf}</div>
+        <div style="font-size:.68rem;color:var(--muted);"><strong style="color:var(--deep);font-weight:500;">Energy:</strong> ${v.energy}</div>
+        <div style="font-size:.68rem;color:var(--muted);"><strong style="color:var(--deep);font-weight:500;">Best time:</strong> ${v.bestTime}</div>
+      </div>
       <div class="vcard-why">${v.why}</div>
       <div class="vtags">${v.tags.map(t=>`<span class="vtag vtag-v">${t}</span>`).join('')}</div>
     </div>`).join('');
