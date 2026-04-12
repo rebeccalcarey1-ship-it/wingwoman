@@ -279,8 +279,8 @@ const DAYS_S=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MONTHS_S=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-const SB_URL = localStorage.getItem('ww_sb_url') || 'YOUR_SUPABASE_URL';
-const SB_KEY = localStorage.getItem('ww_sb_key') || 'YOUR_SUPABASE_ANON_KEY';
+const SB_URL = localStorage.getItem('ww_sb_url') || ''https://sbzqpwdrelldbemgoagq.supabase.co'';
+const SB_KEY = localStorage.getItem('ww_sb_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNienFwd2RyZWxsZGJlbWdvYWdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MDEwNTAsImV4cCI6MjA5MTI3NzA1MH0.A8THAW5PSWfgOXUzqVYy0mSYhIdiE1tVEv4PEJhE0po';
 const sb = supabase.createClient(SB_URL, SB_KEY);
 
 const NEIGHBORHOODS = [
@@ -669,8 +669,8 @@ Respond ONLY in this JSON format:
 
   try {
     const res = await fetch('/api/chat', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ prompt })
+  method: 'POST', headers: {'Content-Type':'application/json'},
+  body: JSON.stringify({ prompt })
     });
     const data = await res.json();
     const text = data.content.map(i => i.text||'').join('');
