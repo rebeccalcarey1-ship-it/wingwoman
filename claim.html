@@ -441,7 +441,7 @@ async function init(){
     const myClaim=claimedDates.find(c=>c.friend_id===friend.id);
     if(myClaim){showAlreadyClaimed(myClaim);return;}
     showStep(1);
-  }catch(e){console.error(e);showError();}
+  } catch(e) { console.error(e); showError(); alert(e.message); }
 }
 
 function showError(){showView('errorView');}
